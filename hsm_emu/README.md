@@ -17,12 +17,14 @@ Table of Contents
 ## Requirements
 The strict requirements of this library are:
 
-You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a>.
-	Python 3.5
+You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a> and Python 3.5.
+
+    ```
 	sudo apt-get install libssl-dev
 	pip3 install cryptography
+    ```	
 		
-all other dependencies are included in hsm_emu/libraries:
+all other dependencies are included in [`libraries`]:
 
 ## Structure
 
