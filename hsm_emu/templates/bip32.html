@@ -187,6 +187,7 @@ $var cssfiles:
 
   function getDerivation() {
       var b32key = document.getElementById("b32Key").value;
+      var b32CustomPath = document.getElementById("b32CustomPath").value;      
       var derivedPrivateKey = document.getElementById("derivedPrivateKey");
       var derivedPrivateKeyWif = document.getElementById("derivedPrivateKeyWif");
       var derivedPublicKey = document.getElementById("derivedPublicKey");
@@ -196,7 +197,7 @@ $var cssfiles:
       jQuery.ajax({
               type: "POST",
               url: "/derivation",
-              data: {bip32Key : b32key},
+              data: {bip32Key : b32key, b32Path:b32CustomPath},
               success: function(data) {
                 var obj = jQuery.parseJSON( data );
                 //jQuery('#foo').html(data).hide().fadeIn(1500);
