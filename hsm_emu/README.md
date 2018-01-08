@@ -38,13 +38,18 @@ all other dependencies are included in [`libraries`]:
 ## Start-the-server
 If you go to your command line and type:
 
+```
 $ python3 web.py
+```
+
 http://0.0.0.0:8080/
 You now have your web.py application running a real web server on your computer. Visit that URL (You can add an IP address/port after the "web.py" bit to control where web.py launches the server.
 
 Note: You can specify the port number to use on the command line like this if you can't or don't want to use the default:
 
+```
 $ python3 web.py 9000
+```
 
 ## Bitcoin-regtest-box
 It is a fork of <a href="https://github.com/freewil/bitcoin-testnet-box">bitcoin-testnet-box</a> with some improvements and other commands included.
