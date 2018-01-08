@@ -17,7 +17,7 @@ Table of Contents
 ## Requirements
 The strict requirements of this library are:
 
-You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a> and Python 3.5.
+You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a> v0.15.1 and Python 3.5.
 
     ```
 	sudo apt-get install libssl-dev
