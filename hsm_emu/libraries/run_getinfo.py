@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-
+import sys
+if sys.version_info.major < 3:
+    sys.stderr.write('Sorry, Python 3.x required by this example.\n')
+    sys.exit(1)
+    
 from regtest import Manager
 from btcpy.setup import setup
 
