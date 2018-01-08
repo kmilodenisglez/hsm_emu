@@ -18,7 +18,21 @@ from utils_wallets import customPathDerivation, verifyMessage, signMessage
 
 masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
 
-def check_path(url):
+"""
+	Genera un hash256 (64 bytes) seudoaleatorio en cada nueva llamada.
+"""
+def getChallengeHidden():
+	seed64B = hashlib.pbkdf2_hmac('sha256', os.urandom(64), os.urandom(16), random.randint(5, 20))
+	return binascii.hexlify(seed64B).decode() # Use random value
+
+"""
+	Devuelve la fecha actual en el formato  2018-01-08 12:35:09.126812
+"""
+def getChallengeVisual():
+	return str(datetime.today())
+
+
+def checkPath(url):
 	if not isinstance(url, ParseResult):
 		raise ValueError('Expected objects of type `ParseResult`, got {} instead'.format(type(url)))
 	m = hashlib.sha256()
@@ -62,10 +76,11 @@ if __name__ == '__main__':
 	url = urlparse('http://satoshi@bitcoin.org:8080/login?1')
 
 	print("url: ", url)
-	hdkeypath = check_path(url)
+	hdkeypath = checkPath(url)
 	print("hdkeypath: ", hdkeypath)
+	print(challenge_visual)
 	#deriveKey = derive(masterkey, hdkeypath)
-	print(customPathDerivation(masterkey, hdkeypath))
+	#print(customPathDerivation(masterkey, hdkeypath))
 	"""
 	res_sign = sign(challenge_hidden, challenge_visual, hdkeypath)
 	signature = b2x(res_sign[1])
