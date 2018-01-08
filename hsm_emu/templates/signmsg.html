@@ -1,0 +1,107 @@
+$def with ()
+$var jsfiles: 
+$var cssfiles:
+  <table>
+    <tr>
+      <td colspan="2" style="font-weight:bold">Sign</td>
+    </tr>
+    <tr>
+      <td>Path:</td>
+      <td><input id="path" value="m/49'/1'/0'"></td>
+    </tr>
+    <tr>
+      <td>Message:</td>
+      <td><input id="message" value="Example message" size="64"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><button class="btn btn-primary btn-sm" onclick="signMessage()">Sign Message</button></td>
+    </tr>
+  </table>
+
+  <table>
+    <tr>
+      <td colspan="2" style="font-weight:bold">Verify</td>
+    </tr>
+    <tr>
+      <td>Address:</td>
+      <td><input id="address" value="" /></td>
+    </tr>
+    <tr>
+      <td>Message:</td>
+      <td><input id="messageV" value="Example message" /></td>
+    </tr>
+    <tr>
+      <td>Signature:</td>
+      <td><textarea id="signature"></textarea></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="verifyMessage()">Verify Message</button>
+      </td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <pre id="response"></pre>
+
+  <script type="text/javascript" src="/static/jquery.js"></script>
+    <script>
+
+    function signMessage() {
+ 
+      var input_path = document.getElementById("path").value;
+      var input_message = document.getElementById("message").value;
+      
+      var address = document.getElementById("address");
+      var signature = document.getElementById("signature");
+      var messageV = document.getElementById("messageV");
+
+       jQuery.ajax({
+                type: "POST",
+                data: {path : input_path, message: input_message},
+                success: function(data, res) {
+                  var obj = jQuery.parseJSON( data );
+                  address.value = obj.address;
+                  signature.value = obj.signature;
+                  messageV.value = input_message;
+                },
+                });
+    }
+
+    function verifyMessage() {
+      var messagev_input = document.getElementById("messageV").value;
+      var address_input = document.getElementById("address").value;
+      var signature_input = document.getElementById("signature").value;
+            
+      console.log(address_input, signature_input, messagev_input)
+
+       jQuery.ajax({
+                url: "/verifymessage",
+                type: "POST",
+                data: {address: address_input, signature:signature_input, message:messagev_input},
+                success: function(data, res) { 
+                  var obj = jQuery.parseJSON( data );
+                  if(obj.verified == true)
+                  {
+                    console.log("Success! Verified.");                                        
+                    alert("Success! Verified.")                 
+                  }
+                  else
+                  {
+                    console.log("Fail!.");                                        
+                    alert("Fail!.")                 
+                  }
+                  
+                  
+                },
+                error: function(data) {
+                  alert("fail!!!");
+                },
+                });
+    }
+
+    </script>
+

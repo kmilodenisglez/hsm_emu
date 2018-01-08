@@ -1,0 +1,258 @@
+$def with (text)
+$var jsfiles: 
+$var cssfiles:  
+<div class="" id="b32">
+  <form action="/" class="form-horizontal" method="get">
+    <fieldset>
+      <legend>BIP32 Key Generator From Key</legend>      
+      <div class="input-group">
+        <span class="input-group-btn">
+            <label class="btn btn-default control-label" disabled>BIP32 Key</label>
+        </span>                                      
+        <input type="text" class="form-control" placeholder="insert BIP32 Key" id="b32Key"  value="tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF">      
+        <span class="input-group-btn">
+            <button id="btn_search_producto" onclick="getKeyInfo()" class="btn btn-primary" type="button">SEND                                       
+          </button>
+        </span>      
+      </div> 
+   
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Key Info</label>
+        <div class="col-lg-10">
+          <div class="row">
+            <div class="col-lg-12">
+              <label class="control-label" id="b32KeyInfoTitle">title</label>
+            </div>
+          </div>
+          <br />
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Version</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoVersion" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Depth</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoDepth" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Parent Fingerprint</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoParentFingerprint" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Child Index</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoChildIndex" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Chain Code</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoChainCode" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Key</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32KeyInfoKey" disabled />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Derivation Path</label>
+        <div class="col-lg-10">
+          <select class="form-control" id="b32DerivationPath">
+            <!--
+            <option value="m">Info: m</option>
+            <option value="m/i">Simple: m/i</option>
+            <option value="m/k'/0">External account (master): m/k'/0</option>
+            <option value="m/k'/0/i">External account i'th keypair: m/k'/0/i</option>
+            <option value="m/k'/1">Internal account (master): m/k'/1</option>
+            <option value="m/k'/1/i">Internal account i'th keypair: m/k'/1/i</option>
+          -->
+            <option value="custom" selected>Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Custom Path </label>
+        <div class="input-group col-lg-4">
+              <input value="m/0'/0'/276'" class="form-control" id="b32CustomPath" placeholder="m/0'/0'/276'" type="text">
+          <span class="input-group-btn">
+              <button id="btnCustom" onclick="getDerivation()" class="btn btn-primary" type="button">Go!</button>
+          </span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Derived Private Key</label>
+        <div class="col-lg-10">
+          <input class="form-control" id="derivedPrivateKey" readonly="readonly" type="text" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Private Key (WIF)</label>
+        <div class="col-lg-10">
+          <input class="form-control" id="derivedPrivateKeyWif" readonly="readonly" type="text" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Derived Public Key</label>
+        <div class="col-lg-10">
+          <input class="form-control" id="derivedPublicKey" readonly="readonly" type="text" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Public Key (Hex)</label>
+        <div class="col-lg-10">
+          <input class="form-control" id="derivedPublicKeyHex" readonly="readonly" type="text" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Address</label>
+        <div class="col-lg-10">
+          <input class="form-control" id="address" readonly="readonly" type="text" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Address QR Code</label>
+        <div class="col-lg-10">
+          <span id="genAddrQR"></span>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+        <br>        
+<h2 id="foo">$text</h2> 
+  <script type="text/javascript" src="/static/jquery.js"></script>
+  <script type="text/javascript" src="/static/qrcode.js"></script>
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+      cleanKeyInfo();
+  });
+            
+  function getKeyInfo() {
+      var b32key = document.getElementById("b32Key").value;
+      var title = document.getElementById("b32KeyInfoTitle");
+      var version = document.getElementById("b32KeyInfoVersion");
+      var depth = document.getElementById("b32KeyInfoDepth");
+      var fingerprint = document.getElementById("b32KeyInfoParentFingerprint");
+      var childindex = document.getElementById("b32KeyInfoChildIndex");
+      var chaincode = document.getElementById("b32KeyInfoChainCode");
+      var key = document.getElementById("b32KeyInfoKey");
+
+      jQuery.ajax({
+              type: "POST",
+              data: {bip32Key : b32key},
+              success: function(data) {
+                var obj = jQuery.parseJSON( data );
+                //jQuery('#foo').html(data).hide().fadeIn(1500);
+                if(obj.error)
+                {
+                  setErrorState(jQuery("#b32Key"), true, obj.message, ".input-group");
+                }
+                else
+                {
+                  setErrorState(jQuery("#b32Key"), false, '', ".input-group");
+                  //alert(title.title);
+                  title.textContent = obj.title;
+                  version.value = obj.version;
+                  depth.value = obj.depth;
+                  fingerprint.value = obj.parentFingerprint;
+                  childindex.value = obj.childIndex;
+                  chaincode.value = obj.chainCode;
+                  key.value = obj.key;                  
+                }                
+              },
+              });
+      return false;
+  }
+
+  function getDerivation() {
+      var b32key = document.getElementById("b32Key").value;
+      var derivedPrivateKey = document.getElementById("derivedPrivateKey");
+      var derivedPrivateKeyWif = document.getElementById("derivedPrivateKeyWif");
+      var derivedPublicKey = document.getElementById("derivedPublicKey");
+      var derivedPublicKeyHex = document.getElementById("derivedPublicKeyHex");
+      var address = document.getElementById("address");
+
+      jQuery.ajax({
+              type: "POST",
+              url: "/derivation",
+              data: {bip32Key : b32key},
+              success: function(data) {
+                var obj = jQuery.parseJSON( data );
+                //jQuery('#foo').html(data).hide().fadeIn(1500);
+                if(obj.error)
+                {
+                  setErrorState(jQuery("#b32Key"), true, obj.message, ".input-group");
+                }
+                else
+                {
+                  setErrorState(jQuery("#b32Key"), false, '', ".input-group");
+                  derivedPrivateKey.value = obj.derivedPrivKey;
+                  derivedPrivateKeyWif.value = obj.wifDerivedPrivKey;
+                  derivedPublicKey.value = obj.derivedPubKey;
+                  derivedPublicKeyHex.value = obj.hexDerivedPubKey;
+                  address.value = obj.address;
+                  generateQrCode(address.value);
+                }
+              },
+              });
+      return false;    
+  }
+
+  function generateQrCode(address) {      
+      var qrCode = qrcode(3, 'M');
+      qrCode.addData(address);
+      qrCode.make();
+      jQuery('#genAddrQR').html(qrCode.createImgTag(4));
+  }
+
+  function cleanKeyInfo() {
+      document.getElementById("b32KeyInfoTitle").textContent = 'title';
+      document.getElementById("b32KeyInfoVersion").value = '';
+      document.getElementById("b32KeyInfoDepth").value = '';
+      document.getElementById("b32KeyInfoParentFingerprint").value = '';
+      document.getElementById("b32KeyInfoChildIndex").value = '';
+      document.getElementById("b32KeyInfoChainCode").value = '';
+      document.getElementById("b32KeyInfoKey").value = '';
+
+
+      document.getElementById("derivedPrivateKey").value = '';
+      document.getElementById("derivedPrivateKeyWif").value = '';
+      document.getElementById("derivedPublicKey").value = '';
+      document.getElementById("derivedPublicKeyHex").value = '';
+      document.getElementById("address").value = '';
+  }                
+
+  function setErrorState(field, err, msg, class_group = '.form-group') {
+      var group = field.closest(class_group);
+      if (err) {
+          group.removeClass('has-warning').addClass('has-error');
+          group.attr('title',msg);
+          cleanKeyInfo();
+      } else {
+          group.removeClass('has-warning').removeClass('has-error');
+          group.attr('title','');
+      }
+    }  
+
+        </script>
