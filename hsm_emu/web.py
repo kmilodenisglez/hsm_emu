@@ -5,9 +5,12 @@ if sys.version_info.major < 3:
 	sys.exit(1)
 
 import os
-from libraries import web
 import json
-from libraries.utils_wallets import setup, customPathDerivation, getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey
+from urllib.parse import urlparse
+from libraries import web
+from libraries.authentication import getChallengeHidden, getChallengeVisual
+from libraries.utils_wallets import (setup, customPathDerivation, checkPath, signAuth, verifyAuth, 
+	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey)
 
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -43,8 +46,24 @@ class index:
 		return render.index("")
 
 class login:        
-	def GET(self):
-		return render.login("View not implement yet")        
+	def GET(self):		
+		challengeVisual = getChallengeVisual()
+		challengeHiden = getChallengeHidden()
+		print("host: ", web.ctx.host)
+		return render.login(challengeVisual, challengeHiden)
+
+	def POST(self):
+		form = web.input(challengeHidden={}, challengeVisual={})
+		url = urlparse('http://satoshi@'+web.ctx.host+'/login?1')#http://satoshi@ip:port/login?1
+		hdkeypath = checkPath(url)
+		res = signAuth(values['challengeHidden'], values['challengeVisual'], hdkeypath)
+
+		return json.dumps(
+			{
+				'address':str(res[0]), 
+				'signature':res[1].decode(), 
+				'publicKey':res[2],
+			})
 
 class getxpub:
 	def GET(self):
@@ -69,8 +88,6 @@ class signmessage:
 	def POST(self):
 		values = web.input(path={},message={})
 		res = signMessage(values['path'], values['message'], masterkey)        
-		print(res[0], res[1])        
-		#return make_text(res[0])
 		return json.dumps({'address':str(res[0]), 'signature':res[1].decode()})
 
 class verifymessage:

@@ -13,20 +13,18 @@ $var cssfiles:
 </div>
         <br><br>
         <span id="foo">$text</span>        
-        <script type="text/javascript" src="/static/jquery.js"></script>
-        <script type="text/javascript">
-            
-                function sendPath() {
-                    var input_string = document.getElementById("path").value;
-                    
-                    jQuery.ajax({
-                            type: "POST",
-                            data: {path : input_string},
-                            success: function(data) {
-                            jQuery('#foo').html(data).hide().fadeIn(1500);
-                            },
-                            });
-                    return false;
-                    }
-
-        </script>
+        
+<script type="text/javascript">            
+function sendPath() {
+    var input_string = document.getElementById("path").value;
+    
+    jQuery.ajax({
+            type: "POST",
+            data: {path : input_string},
+            success: function(data) {
+            jQuery('#foo').html(data).hide().fadeIn(1500);
+            },
+            });
+    return false;
+    }
+</script>

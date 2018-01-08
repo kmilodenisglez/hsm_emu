@@ -1,5 +1,20 @@
-$def with (text)
+$def with (challengeVisual, challengeHiden)
 $var jsfiles: 
 $var cssfiles:  
-<h2 id="foo">$text</h2> 
+<h2 id="foo"><b>Challenge Visual: </b>$challengeVisual</h2> 
+<br>
 
+<div class="form-group col-lg-4">
+<input type="hidden" value="$challengeHiden" name="challengeHiden"/> 
+<div class="form-group has-feedback">            
+    <input id="input_user" name="user" class="form-control" placeholder="Usuario" required="" autofocus="" type="text">
+    <span class="form-control-feedback"></span>
+</div>            
+<button class="btn btn-lg btn-success btn-block btn-flat" onclick="login()">Entrar</button>
+</div>
+
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+      
+  });
+</script>

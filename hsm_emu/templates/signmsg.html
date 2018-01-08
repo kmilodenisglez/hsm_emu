@@ -47,29 +47,26 @@ $var cssfiles:
 
   <pre id="response"></pre>
 
-  <script type="text/javascript" src="/static/jquery.js"></script>
-    <script>
+<script>
+  function signMessage() { 
+    var input_path = document.getElementById("path").value;
+    var input_message = document.getElementById("message").value;
+    
+    var address = document.getElementById("address");
+    var signature = document.getElementById("signature");
+    var messageV = document.getElementById("messageV");
 
-    function signMessage() {
- 
-      var input_path = document.getElementById("path").value;
-      var input_message = document.getElementById("message").value;
-      
-      var address = document.getElementById("address");
-      var signature = document.getElementById("signature");
-      var messageV = document.getElementById("messageV");
-
-       jQuery.ajax({
-                type: "POST",
-                data: {path : input_path, message: input_message},
-                success: function(data, res) {
-                  var obj = jQuery.parseJSON( data );
-                  address.value = obj.address;
-                  signature.value = obj.signature;
-                  messageV.value = input_message;
-                },
-                });
-    }
+     jQuery.ajax({
+              type: "POST",
+              data: {path : input_path, message: input_message},
+              success: function(data, res) {
+                var obj = jQuery.parseJSON( data );
+                address.value = obj.address;
+                signature.value = obj.signature;
+                messageV.value = input_message;
+              },
+        });
+      }
 
     function verifyMessage() {
       var messagev_input = document.getElementById("messageV").value;
@@ -102,6 +99,5 @@ $var cssfiles:
                 },
                 });
     }
-
-    </script>
+</script>
 
