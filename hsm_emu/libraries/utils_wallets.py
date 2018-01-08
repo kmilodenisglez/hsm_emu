@@ -107,7 +107,7 @@ def signMessage(path, message, masterkey = None):
 	#print(private_key_derived.key.to_wif())
 	secret = CBitcoinSecret(private_key_derived.key.to_wif())   
 	btc_message = BitcoinMessage(message)
-	return (address, SignMessage(secret, btc_message))
+	return (address, SignMessage(secret, btc_message), str(private_key_derived.key.pub()))
 
 """
 	Verify a message using the address and signature.
