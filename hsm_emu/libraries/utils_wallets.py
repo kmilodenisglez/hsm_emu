@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+import sys
+if sys.version_info.major < 3:
+	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
+	sys.exit(1)
+	
 import base64
 import os
-import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 from bitcoin.rpc import RawProxy, JSONRPCError, Proxy
 
@@ -29,7 +33,7 @@ SelectParams(net) #set net of bitcoin
 def bip32KeyInfoFromKey(prvKey):
 	privateMasterKey = ExtendedKey.decode(prvKey, check_network=actived_mainnet)
 	#print(privateMasterKey.get_version().hex())
-	#print(privateMasterKey.key.to_wif())	
+	#print(privateMasterKey.key.to_wif())   
 	return privateMasterKey
 
 """
@@ -64,7 +68,24 @@ def getXPubKey(path, masterkey = None):
 def derive(key, path):
 	try:
 		extendedKey = ExtendedKey.decode(key, check_network=False)
-		return extendedKey.derive(path)	
+		return extendedKey.derive(path) 
+	except Exception as e:
+		raise e
+
+def customPathDerivation(key, path):
+	try:
+		derivedKey = derive(key, path)
+		derived_encode = derivedKey.encode(mainnet=actived_mainnet)
+		derived_pub_encode = derivedKey.pub().encode(mainnet=actived_mainnet) 	
+
+		res = {
+			'derivedPrivKey':derived_encode, 
+			'wifDerivedPrivKey':derivedKey.key.to_wif(), 
+			'derivedPubKey':derived_pub_encode, 
+			'hexDerivedPubKey':derivedKey.key.pub().hexlify(), 
+			'address':str(derivedKey.key.pub().to_address()),
+		}
+		return res
 	except Exception as e:
 		raise e
 
@@ -75,16 +96,16 @@ def derive(key, path):
 	message: a string
 	
 	Message is signed and address + signature is returned 
-	tuple(address, signature)	
+	tuple(address, signature)   
 
 	example:
-	path = "m/0'/0'/276'"	
+	path = "m/0'/0'/276'"   
 """
 def signMessage(path, message, masterkey = None):
 	private_key_derived = derive(masterkey, path)
 	address = private_key_derived.key.pub().to_address()
 	#print(private_key_derived.key.to_wif())
-	secret = CBitcoinSecret(private_key_derived.key.to_wif())	
+	secret = CBitcoinSecret(private_key_derived.key.to_wif())   
 	btc_message = BitcoinMessage(message)
 	return (address, SignMessage(secret, btc_message))
 
@@ -96,7 +117,7 @@ def signMessage(path, message, masterkey = None):
 """
 def verifyMessage(address, signature, message):
 	if not isinstance(message, str):
-		raise ValueError('Expected objects of type `str`, got {} instead'.format(type(message)))	
+		raise ValueError('Expected objects of type `str`, got {} instead'.format(type(message)))    
 	btc_message = BitcoinMessage(message)
 	return VerifyMessage(address, btc_message, signature)
 
@@ -116,7 +137,7 @@ def cipherKeyValue(path, key, value):
 
 	"""
 	Fernet is built on top of a number of standard cryptographic 
-	primitives. Specifically it uses:	
+	primitives. Specifically it uses:   
 
 	AES in CBC mode with a 128-bit key for encryption; using PKCS7 padding.
 	HMAC using SHA256 for authentication.
@@ -142,11 +163,11 @@ def decipherKeyValue(path, key, value):
 	fernet = Fernet(base64_private_key)
 	return b2x(fernet.decrypt(value))
 
-def raw_transaction(ins, outs):	
+def raw_transaction(ins, outs): 
 	unsigned = MutableTransaction(version=2,
 		ins=ins,
 		outs=outs,
-		locktime=Locktime(0))	
+		locktime=Locktime(0))   
 	return unsigned.hexlify()
 
 
@@ -221,5 +242,5 @@ if __name__ == '__main__':
 
 	json_res = regtest.sign_raw_transaction(raw_t, [], [private_key_1.to_wif(),private_key_2.to_wif()], 0)
 	if(json_res['complete']):
-		tx_id = regtest.send_rpc_cmd(['sendrawtransaction', json_res['hex']], 0)	
+		tx_id = regtest.send_rpc_cmd(['sendrawtransaction', json_res['hex']], 0)    
 	"""
