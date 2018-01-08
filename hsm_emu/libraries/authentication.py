@@ -1,9 +1,11 @@
+import os
 import sys
 if sys.version_info.major < 3:
 	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
 	sys.exit(1)
-	
-import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+
 import random
 import hashlib
 import struct
@@ -13,10 +15,11 @@ import bitcoin
 from datetime import datetime
 from urllib.parse import urlparse, ParseResult
 from bitcoin.core import lx, x, b2x, COIN
+from bitcoin.rpc import RawProxy, JSONRPCError, Proxy
 
 from utils_wallets import customPathDerivation, verifyMessage, signMessage
 
-masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
+key = masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
 
 """
 	Genera un hash256 (64 bytes) seudoaleatorio en cada nueva llamada.
@@ -44,14 +47,14 @@ def checkPath(url):
 	hdkeypath = "m/" + "/".join([str(x) for x in address_n])		
 	return hdkeypath
 
-def sign(challenge_hidden, challenge_visual, hdkeypath):
+def signAuth(challenge_hidden, challenge_visual, hdkeypath):
 	h1 = hashlib.sha256(binascii.unhexlify(challenge_hidden)).digest()
 	binary_challenge_visual = challenge_visual if isinstance(challenge_visual, bytes) else bytes(challenge_visual, 'utf-8')        
 	h2 = hashlib.sha256(binary_challenge_visual).digest()        
 	message = h1 + h2	
-	return signMessage(hdkeypath, b2x(message), masterkey)
+	return signMessage(hdkeypath, b2x(message), key)
 
-def verify(challenge_hidden, challenge_visual, address, signature, version = 2):
+def verifyAuth(challenge_hidden, challenge_visual, address, signature, version = 2):
 	if not isinstance(signature, bytes):
 		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(signature)))
 
@@ -65,29 +68,28 @@ def verify(challenge_hidden, challenge_visual, address, signature, version = 2):
 	return verifyMessage(address, signature, b2x(message))
 
 
-if __name__ == '__main__':
-	seed64B = hashlib.pbkdf2_hmac('sha256', os.urandom(64), os.urandom(16), random.randint(5, 20))
-	challenge_hidden = binascii.hexlify(seed64B).decode() # Use random value
-	challenge_visual = str(datetime.today())
+if __name__ == '__main__':	
+	challenge_hidden = getChallengeHidden()
+	challenge_visual = getChallengeVisual()
 	address = "mkcuRYXhBb6Pg8jjXuGSbfTXCJBrHPSp4d"
 	signature = ""
 
-
 	url = urlparse('http://satoshi@bitcoin.org:8080/login?1')
 
-	print("url: ", url)
 	hdkeypath = checkPath(url)
+
+	print("url: ", url)
 	print("hdkeypath: ", hdkeypath)
-	print(challenge_visual)
-	#deriveKey = derive(masterkey, hdkeypath)
-	#print(customPathDerivation(masterkey, hdkeypath))
-	"""
-	res_sign = sign(challenge_hidden, challenge_visual, hdkeypath)
+	print("challenge_visual: ", challenge_visual)
+	print("challenge_hidden: ", challenge_hidden)
+
+	res_sign = signAuth(challenge_hidden, challenge_visual, hdkeypath)
+
 	signature = b2x(res_sign[1])
-	print(res_sign[0])
+	print("address: ", res_sign[0])
 
 	assert address == str(res_sign[0])
-	print("sign message: ", address, signature)
+	print("sign message: ", signature)
 
-	print("\nverify: ", verify(challenge_hidden, challenge_visual, address, x(signature)))
-	"""
+	print("\n        verify: ", verifyAuth(challenge_hidden, challenge_visual, address, x(signature)))
+	print("|-------------------------|")
