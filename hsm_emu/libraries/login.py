@@ -1,12 +1,22 @@
+import sys
+if sys.version_info.major < 3:
+	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
+	sys.exit(1)
+	
+import os
+import random
 import hashlib
 import struct
 import binascii
 import base64
 import bitcoin
+from datetime import datetime
 from urllib.parse import urlparse, ParseResult
 from bitcoin.core import lx, x, b2x, COIN
 
-from utils_wallets import verify_message, sign_message
+from utils_wallets import customPathDerivation, verifyMessage, signMessage
+
+masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
 
 def check_path(url):
 	if not isinstance(url, ParseResult):
@@ -25,7 +35,7 @@ def sign(challenge_hidden, challenge_visual, hdkeypath):
 	binary_challenge_visual = challenge_visual if isinstance(challenge_visual, bytes) else bytes(challenge_visual, 'utf-8')        
 	h2 = hashlib.sha256(binary_challenge_visual).digest()        
 	message = h1 + h2	
-	return sign_message(hdkeypath, b2x(message))
+	return signMessage(hdkeypath, b2x(message), masterkey)
 
 def verify(challenge_hidden, challenge_visual, address, signature, version = 2):
 	if not isinstance(signature, bytes):
@@ -38,12 +48,13 @@ def verify(challenge_hidden, challenge_visual, address, signature, version = 2):
 		binary_challenge_visual = challenge_visual if isinstance(challenge_visual, bytes) else bytes(challenge_visual, 'utf-8')        
 		h2 = hashlib.sha256(binary_challenge_visual).digest()        
 		message = h1 + h2
-	return verify_message(address, signature, b2x(message))
+	return verifyMessage(address, signature, b2x(message))
 
 
-if __name__ == '__main__':	
-	challenge_hidden = "cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2" # Use random value
-	challenge_visual = "2015-03-23 17:39:22"
+if __name__ == '__main__':
+	seed64B = hashlib.pbkdf2_hmac('sha256', os.urandom(64), os.urandom(16), random.randint(5, 20))
+	challenge_hidden = binascii.hexlify(seed64B).decode() # Use random value
+	challenge_visual = str(datetime.today())
 	address = "mkcuRYXhBb6Pg8jjXuGSbfTXCJBrHPSp4d"
 	signature = ""
 
@@ -53,6 +64,9 @@ if __name__ == '__main__':
 	print("url: ", url)
 	hdkeypath = check_path(url)
 	print("hdkeypath: ", hdkeypath)
+	#deriveKey = derive(masterkey, hdkeypath)
+	print(customPathDerivation(masterkey, hdkeypath))
+	"""
 	res_sign = sign(challenge_hidden, challenge_visual, hdkeypath)
 	signature = b2x(res_sign[1])
 	print(res_sign[0])
@@ -61,3 +75,4 @@ if __name__ == '__main__':
 	print("sign message: ", address, signature)
 
 	print("\nverify: ", verify(challenge_hidden, challenge_visual, address, x(signature)))
+	"""
