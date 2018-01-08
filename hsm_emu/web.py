@@ -8,8 +8,9 @@ import os
 import json
 from urllib.parse import urlparse
 from libraries import web
-from libraries.authentication import getChallengeHidden, getChallengeVisual
-from libraries.utils_wallets import (setup, customPathDerivation, checkPath, signAuth, verifyAuth, 
+from libraries.authentication import (getChallengeHidden, getChallengeVisual, 
+	checkPath, signAuth, verifyAuth)
+from libraries.utils_wallets import (setup, customPathDerivation,  
 	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey)
 
 # to avoid any path issues, "cd" to the web root.
