@@ -41,22 +41,23 @@ def verify(challenge_hidden, challenge_visual, address, signature, version = 2):
 	return verify_message(address, signature, b2x(message))
 
 
-challenge_hidden = "cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2" # Use random value
-challenge_visual = "2015-03-23 17:39:22"
-address = "mkcuRYXhBb6Pg8jjXuGSbfTXCJBrHPSp4d"
-signature = ""
+if __name__ == '__main__':	
+	challenge_hidden = "cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2" # Use random value
+	challenge_visual = "2015-03-23 17:39:22"
+	address = "mkcuRYXhBb6Pg8jjXuGSbfTXCJBrHPSp4d"
+	signature = ""
 
 
-url = urlparse('http://satoshi@bitcoin.org:8080/login?1')
+	url = urlparse('http://satoshi@bitcoin.org:8080/login?1')
 
-print("url: ", url)
-hdkeypath = check_path(url)
-print("hdkeypath: ", hdkeypath)
-res_sign = sign(challenge_hidden, challenge_visual, hdkeypath)
-signature = b2x(res_sign[1])
-print(res_sign[0])
+	print("url: ", url)
+	hdkeypath = check_path(url)
+	print("hdkeypath: ", hdkeypath)
+	res_sign = sign(challenge_hidden, challenge_visual, hdkeypath)
+	signature = b2x(res_sign[1])
+	print(res_sign[0])
 
-assert address == str(res_sign[0])
-print("sign message: ", address, signature)
+	assert address == str(res_sign[0])
+	print("sign message: ", address, signature)
 
-print("\nverify: ", verify(challenge_hidden, challenge_visual, address, x(signature)))
+	print("\nverify: ", verify(challenge_hidden, challenge_visual, address, x(signature)))
