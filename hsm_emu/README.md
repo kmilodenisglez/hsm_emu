@@ -7,30 +7,30 @@
 Table of Contents
 =================
 
-   * [hsm_emu](#hsm_emu)
-   * [Requirements](#requirements)
-   * [Structure](#structure)
-   * [Start-the-server](start_server)
-   * [Bitcoin-regtest-box](#bitcoin-regtest-box)
-   * [TODO](#todo)
+	 * [hsm_emu](#hsm_emu)
+	 * [Requirements](#requirements)
+	 * [Structure](#structure)
+	 * [Start-the-server](start_server)
+	 * [Bitcoin-regtest-box](#bitcoin-regtest-box)
+	 * [TODO](#todo)
 
 # Requirements
 The strict requirements of this library are:
 
-    You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a>.
-    Python 3.5
-    sudo apt-get install libssl-dev
-    pip3 install cryptography
-    
+You must have bitcoind and bitcoin-cli installed on your system <a href="https://bitcoin.org/en/bitcoin-core/">bitcoin-core</a>.
+	Python 3.5
+	sudo apt-get install libssl-dev
+	pip3 install cryptography
+		
 all other dependencies are included in hsm_emu/libraries:
 
 # Structure
 
-    web.py            - app web utilizando <a href="http://webpy.org">webpy</a>  
-    Makefile            - Create your own private bitcoin regtest already preconfigured with 2 nodes, the 2nd node connected to the 1st; see more at (#bitcoin-regtest-box).
-    libraries/login.py            - Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).
-    libraries/utils_wallets.py            - varias funcionalidades implementadas [bip32KeyInfoFromKey, getXPubKey, derive, signMessage, verifyMessage, cipherKeyValue, decipherKeyValue, raw_transaction, ...]
-    libraries/request_payment.py            -
+web.py            - app web utilizando <a href="http://webpy.org">webpy</a>  
+Makefile            - Create your own private bitcoin regtest already preconfigured with 2 nodes, the 2nd node connected to the 1st; see more at (#bitcoin-regtest-box).
+libraries/login.py            - Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).
+libraries/utils_wallets.py            - varias funcionalidades implementadas [bip32KeyInfoFromKey, getXPubKey, derive, signMessage, verifyMessage, cipherKeyValue, decipherKeyValue, raw_transaction, ...]
+libraries/request_payment.py            -
 
 # Start-the-server
 If you go to your command line and type:
