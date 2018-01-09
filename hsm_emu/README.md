@@ -10,6 +10,7 @@ Table of Contents
  * [hsm_emu](#hsm_emu)
  * [Requirements](#requirements)
  * [Structure](#structure)
+ * [Libraries](#libraries)
  * [Start-the-server](start_server)
  * [Bitcoin-regtest-box](#bitcoin-regtest-box)
  * [TODO](#todo)
@@ -28,12 +29,33 @@ all other dependencies are included in [`libraries`]:
 
 ## Structure
 
-
-- **web.py**: [`web.py`](web.py)(app web utilizando <a href="http://webpy.org">webpy</a>)
+- **server/web.py**: [`server/web.py`](server/web.py)(app web utilizando <a href="http://webpy.org">webpy</a>)
 - **Makefile**: [`Makefile`](Makefile)(Create your own private bitcoin regtest already preconfigured with 2 nodes, the 2nd node connected to the 1st; see more at #bitcoin-regtest-box).
 - **libraries/authentication.py**: [`libraries/authentication.py`](libraries/authentication.py)(Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).)
 - **libraries/utils_wallets.py**: [`libraries/utils_wallets.py`](libraries/utils_wallets.py)(Several functionalities implemented [bip32KeyInfoFromKey, getXPubKey, derive, signMessage, verifyMessage, cipherKeyValue, decipherKeyValue, raw_transaction, ...])
 - **libraries/request_payment.py**:[`libraries/request_payment.py`](libraries/request_payment.py)
+
+
+## Libraries
+- **libraries/utils_wallets.py**: [`libraries/utils_wallets.py`](libraries/utils_wallets.py):
+
+```python
+Derive a key, method which takes as input:
+
+key: key
+path: a string representing a path
+
+example:
+	derive('tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX', "m/0'/0'/276'")
+
+def derive(key, path):
+	try:
+		extendedKey = ExtendedKey.decode(key, check_network=False)
+		return extendedKey.derive(path)
+	except Exception as e:
+		raise e
+```
+
 
 ## Start-the-server
 If you go to your command line and type:

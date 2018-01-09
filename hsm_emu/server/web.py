@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import os
 import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 if sys.version_info.major < 3:
 	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
 	sys.exit(1)
 
-import os
 import json
 from urllib.parse import urlparse
 from libraries import web
