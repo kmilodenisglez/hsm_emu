@@ -20,34 +20,40 @@ os.chdir(web_root)
 #setup('regtest')
 masterkey = 'tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF'
 
+
 def make_text(string):
 	return string
 
+
 urls = (
 	#'/(.*)/', 'redirect', 
-	"/", "index",
-	"/login", "login",
-	"/verifyAuth", "verifySignAuth",
-	"/getxpub", "getxpub",
-	"/signmessage", "signmessage",
-	"/verifymessage", "verifymessage",
-	"/bip32", "bip32", 
-	"/derivation", "derivation", 
+	"/", "indexView",
+	"/login", "loginView",
+	"/verifyAuth", "verifySignAuthView",
+	"/getxpub", "getxpubView",
+	"/signmessage", "signMessageView",
+	"/verifymessage", "verifyMessageView",
+	"/cipherKeyValue", "symmetricEncryptionView",
+	"/bip32", "bip32View", 
+	"/derivation", "derivationView", 
 	)
 
-render = web.template.render('templates', base='base')
 
+render = web.template.render('templates', base='base')
 app = web.application(urls, globals())
+
 
 class redirect:
 	def GET(self, path):
 		web.seeother('/' + path)
 
-class index:        
+
+class indexView:        
 	def GET(self):
 		return render.index("")
 
-class login:        
+
+class loginView:        
 	def GET(self):		
 		challengeVisual = getChallengeVisual()
 		challengeHiden = getChallengeHidden()
@@ -67,7 +73,8 @@ class login:
 				'publicKey':res[2],
 			})
 
-class verifySignAuth:
+
+class verifySignAuthView:
 	def GET(self):
 		return render.verifyAuth("Test implementation of the server-side signature verification")
 
@@ -91,7 +98,8 @@ class verifySignAuth:
 				'verified':verified,          
 			})
 
-class getxpub:
+
+class getxpubView:
 	def GET(self):
 		return render.xpubkey("Your pubkey goes here.")
 		
@@ -107,7 +115,8 @@ class getxpub:
 		return make_text("<b>HD pubkey:</b> "+pubkey[0]+"</br></br> <b>HEX pubkey:</b> "+str(pubkey[1])
 			+"</br></br> <b>Address:</b> "+str(pubkey[2]))
 
-class signmessage:
+
+class signMessageView:
 	def GET(self):        
 		return render.signmsg()
 		
@@ -116,7 +125,8 @@ class signmessage:
 		res = signMessage(values['path'], values['message'], masterkey)        
 		return json.dumps({'address':str(res[0]), 'signature':res[1].decode()})
 
-class verifymessage:
+
+class verifyMessageView:
 	def GET(self):        
 		return render.signmsg()
 
@@ -130,7 +140,16 @@ class verifymessage:
 		except Exception:
 			print("Exception!!!")
 
-class bip32:
+
+class symmetricEncryptionView:
+	def GET(self):
+		return render.signmsg("")
+
+	def POST(self):
+		pass
+
+
+class bip32View:
 	def GET(self):
 		return render.bip32("")
 		
@@ -160,7 +179,8 @@ class bip32:
 				'key':keyInfo.key.to_wif(),
 			})
 
-class derivation:        
+
+class derivationView:        
 	def POST(self):
 		values = web.input(bip32Key={}, b32Path={})
 		try:
@@ -174,6 +194,7 @@ class derivation:
 				})
 		res.update({'error': False, 'message': '',})
 		return json.dumps(res)
+
 
 if __name__ == '__main__':
 	app.run()

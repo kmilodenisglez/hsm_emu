@@ -10,27 +10,30 @@ import random
 import hashlib
 import struct
 import binascii
-import base64
-import bitcoin
 from datetime import datetime
 from urllib.parse import urlparse, ParseResult
-from bitcoin.core import lx, x, b2x, COIN
-from bitcoin.rpc import RawProxy, JSONRPCError, Proxy
+from bitcoin.core import x, b2x
 
-from utils_wallets import customPathDerivation, verifyMessage, signMessage
+from utils_wallets import verifyMessage, signMessage
 
 key = masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
+
 
 """
 	Genera un hash256 (64 bytes) seudoaleatorio en cada nueva llamada.
 """
+
+
 def getChallengeHidden():
 	seed64B = hashlib.pbkdf2_hmac('sha256', os.urandom(64), os.urandom(16), random.randint(5, 20))
 	return binascii.hexlify(seed64B).decode() # Use random value
 
+
 """
 	Devuelve la fecha actual en el formato  2018-01-08 12:35:09.126812
 """
+
+
 def getChallengeVisual():
 	return str(datetime.today())
 
@@ -47,12 +50,14 @@ def checkPath(url):
 	hdkeypath = "m/" + "/".join([str(x) for x in address_n])		
 	return hdkeypath
 
+
 def signAuth(challenge_hidden, challenge_visual, hdkeypath):
 	h1 = hashlib.sha256(binascii.unhexlify(challenge_hidden)).digest()
 	binary_challenge_visual = challenge_visual if isinstance(challenge_visual, bytes) else bytes(challenge_visual, 'utf-8')        
 	h2 = hashlib.sha256(binary_challenge_visual).digest()        
 	message = h1 + h2	
 	return signMessage(hdkeypath, b2x(message), key)
+
 
 def verifyAuth(challenge_hidden, challenge_visual, address, signature, version = 2):
 	if not isinstance(signature, bytes):

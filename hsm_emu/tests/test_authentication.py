@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+import sys
+if sys.version_info.major < 3:
+	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
+	sys.exit(1)
+
 import unittest
 from urllib.parse import urlparse
 from context import (getChallengeHidden, getChallengeVisual, 
