@@ -1,0 +1,80 @@
+$def with (text)
+$var jsfiles: 
+$var cssfiles:
+<h2>$text</h2><br>
+  <table>
+    <tr>
+      <td colspan="2" style="font-weight:bold">Verify Auth</td>
+    </tr>
+    <tr>
+      <td>Address:</td>
+      <td><input id="address" value="" /></td>
+    </tr>
+    <tr>
+      <td>ChallengeHidden: </td>
+      <td><input id="challengeHidden" value="Example challengeHidden" /></td>
+    </tr>    
+    <tr>
+      <td>ChallengeVisual: </td>
+      <td><input id="challengeVisual" value="Example challengeVisual" /></td>
+    </tr>
+    <tr>
+      <td>Signature:</td>
+      <td><textarea id="signature"></textarea></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="verifyAuth()">Verify</button>
+      </td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <pre id="response"></pre>
+
+<script>
+    function verifyAuth() {
+      var address = document.getElementById("address").value;
+      var challengeHidden = document.getElementById("challengeHidden").value;
+      var challengeVisual = document.getElementById("challengeVisual").value;
+      var signature = document.getElementById("signature").value;
+            
+      //mejorar luego
+      if(address.length > 0 && challengeHidden.length > 0 && challengeVisual.length > 0 && signature.length > 0)
+      {
+        console.log('Address:', address);
+        console.log('challengeHidden:', challengeHidden); // pubkey in hex
+        console.log('challengeVisual:', challengeVisual); // pubkey in hex
+        console.log('Signature:', signature); // signature in 
+
+         jQuery.ajax({
+                  url: "/verifyAuth",
+                  type: "POST",
+                  data: {address: address, challengeHidden: challengeHidden, challengeVisual:challengeVisual, signature:signature},
+                  success: function(data) { 
+                    var result = jQuery.parseJSON( data );
+
+                    if(result.verified == true)
+                    {
+                      console.log("Success! Verified.");                                        
+                      alert("Success! Verified.")                 
+                    }
+                    else
+                    {
+                      console.log("SERVER ERROR: "+result.message);                                       
+                      alert("SERVER ERROR!!!: "+result.message);                              
+                    }
+                    
+                    
+                  },
+                  error: function(data) {
+                    alert("fail!!!");
+                  },
+                  });        
+
+      }
+    }
+</script>
+

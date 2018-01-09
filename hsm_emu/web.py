@@ -27,6 +27,7 @@ urls = (
 	#'/(.*)/', 'redirect', 
 	"/", "index",
 	"/login", "login",
+	"/verifyAuth", "verifySignAuth",
 	"/getxpub", "getxpub",
 	"/signmessage", "signmessage",
 	"/verifymessage", "verifymessage",
@@ -50,20 +51,44 @@ class login:
 	def GET(self):		
 		challengeVisual = getChallengeVisual()
 		challengeHiden = getChallengeHidden()
-		print("host: ", web.ctx.host)
+		
 		return render.login(challengeVisual, challengeHiden)
 
 	def POST(self):
-		form = web.input(challengeHidden={}, challengeVisual={})
+		form = web.input(challengeHidden={}, challengeVisual={})		
 		url = urlparse('http://satoshi@'+web.ctx.host+'/login?1')#http://satoshi@ip:port/login?1
-		hdkeypath = checkPath(url)
-		res = signAuth(values['challengeHidden'], values['challengeVisual'], hdkeypath)
+		hdkeypath = checkPath(url)		
+		res = signAuth(form['challengeHidden'], form['challengeVisual'], hdkeypath)
 
 		return json.dumps(
 			{
 				'address':str(res[0]), 
 				'signature':res[1].decode(), 
 				'publicKey':res[2],
+			})
+
+class verifySignAuth:
+	def GET(self):
+		return render.verifyAuth("Test implementation of the server-side signature verification")
+
+	def POST(self):
+		form = web.input(address={}, challengeHidden={}, challengeVisual={}, signature={})
+		try:
+			verified = verifyAuth(form['challengeHidden'], form['challengeVisual'], form['address'], form['signature'].encode())
+			print("------->>> VERFI: ", verified);
+		except Exception as e:
+			print("------->>> ERROR: ", e);
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+					'verified': False,
+				})
+		return json.dumps(
+			{
+				'error': False,
+				'message': '', 
+				'verified':verified,          
 			})
 
 class getxpub:

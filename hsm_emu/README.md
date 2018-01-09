@@ -31,7 +31,7 @@ all other dependencies are included in [`libraries`]:
 
 - **web.py**: [`web.py`](web.py)(app web utilizando <a href="http://webpy.org">webpy</a>)
 - **Makefile**: [`Makefile`](Makefile)(Create your own private bitcoin regtest already preconfigured with 2 nodes, the 2nd node connected to the 1st; see more at #bitcoin-regtest-box).
-- **libraries/login.py**: [`libraries/login.py`](libraries/login.py)(Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).)
+- **libraries/authentication.py**: [`libraries/authentication.py`](libraries/authentication.py)(Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).)
 - **libraries/utils_wallets.py**: [`libraries/utils_wallets.py`](libraries/utils_wallets.py)(Several functionalities implemented [bip32KeyInfoFromKey, getXPubKey, derive, signMessage, verifyMessage, cipherKeyValue, decipherKeyValue, raw_transaction, ...])
 - **libraries/request_payment.py**:[`libraries/request_payment.py`](libraries/request_payment.py)
 
@@ -73,5 +73,5 @@ $ make start
 
 ## TODO
 Since this example is still a work in progress, the following roadmap lists the improvements that must be made:
-* Add view for [Symmetric key-value encryption, Get account info, Login]
+* Add view for [Symmetric key-value encryption, Get account info]
 * Add test for sendtransaction, signrawtransaction and other functionalities already implemented in the libraries.

@@ -23,7 +23,7 @@
       table tr:first-child {
         font-weight: bold;
         font-size: 18px;
-        text-indent: 100px;
+        text-indent: 120px;
       }
       table td {
         vertical-align: top;
@@ -31,13 +31,13 @@
         clear: both;
       }
       table tr td:first-child {
-        width: 100px;
+        width: 120px;
       }
       td input {
         width: 350px;
       }
       textarea {
         width: 350px;
-        height: 100px;
+        height: 120px;
       }
 

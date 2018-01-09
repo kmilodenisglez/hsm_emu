@@ -1,20 +1,50 @@
-$def with (challengeVisual, challengeHiden)
+$def with (challengeVisual, challengeHidden)
 $var jsfiles: 
 $var cssfiles:  
-<h2 id="foo"><b>Challenge Visual: </b>$challengeVisual</h2> 
-<br>
-
-<div class="form-group col-lg-4">
-<input type="hidden" value="$challengeHiden" name="challengeHiden"/> 
-<div class="form-group has-feedback">            
-    <input id="input_user" name="user" class="form-control" placeholder="Usuario" required="" autofocus="" type="text">
-    <span class="form-control-feedback"></span>
-</div>            
-<button class="btn btn-lg btn-success btn-block btn-flat" onclick="login()">Entrar</button>
+<div class="form-group text-center" id="form-sign">
+	<input type="hidden" value="$challengeHidden" name="challengeHidden"/> 
+	<b>$challengeVisual</b><br>
+	<label>_____________________________________________</label>
+	<h2 id="foo">Sign in using this identity?</h2> 
+	<br>
+	<button class="btn btn-lg btn-success" onclick="cancelSign()">x Cancel</button>
+	<button class="btn btn-lg btn-success" onclick="loginSign()">Confirm</button>
 </div>
+
 
 <script type="text/javascript">
   jQuery(document).ready(function() {
       
   });
+
+  function cancelSign() {
+	jQuery("#form-sign").addClass('hidden');
+  }
+
+  function loginSign() {
+      jQuery.ajax({
+              type: "POST",
+              data: {challengeVisual : "$challengeVisual", challengeHidden : "$challengeHidden"},
+              success: function(data) {
+                var result = jQuery.parseJSON( data );
+
+                if(result.error)
+                {
+                 	alert(result.error);
+                }
+                else
+                {   
+                	alert('check-in the console');
+                	console.log('Address:', result.address);
+					console.log('Public key:', result.publicKey); // pubkey in hex
+					console.log('Signature:', result.signature); // signature in hex
+					console.log('Only for test, visit the link: http://localhost:8080/verifyAuth');
+					console.log('challengeVisual:', "$challengeVisual");
+					console.log('challengeHidden:', "$challengeHidden");
+
+                }                
+              },
+              });
+      return false;  	
+  }
 </script>
