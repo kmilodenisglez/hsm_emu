@@ -16,10 +16,12 @@ class TestCipherDecipher(unittest.TestCase):
 		to_cipher = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'		
 
 		value_ciphered = cipherKeyValue(path, masterkey, to_cipher)
+		print('value to cipher: ', to_cipher)
+		print('value ciphered: ', value_ciphered)
 
 		value_deciphered = decipherKeyValue(path, masterkey, value_ciphered)
-
 		self.assertEqual(value_deciphered, to_cipher)
+		print('value deciphered: ', value_deciphered)
 
 
 if __name__ == '__main__':

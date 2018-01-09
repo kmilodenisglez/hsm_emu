@@ -11,7 +11,8 @@ from libraries import web
 from libraries.authentication import (getChallengeHidden, getChallengeVisual, 
 	checkPath, signAuth, verifyAuth)
 from libraries.utils_wallets import (setup, customPathDerivation,  
-	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey)
+	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey, 
+	cipherKeyValue, decipherKeyValue)
 
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -33,7 +34,8 @@ urls = (
 	"/getxpub", "getxpubView",
 	"/signmessage", "signMessageView",
 	"/verifymessage", "verifyMessageView",
-	"/cipherKeyValue", "symmetricEncryptionView",
+	"/cipherKeyValue", "symmetricEncryptView",
+	"/decipherKeyValue", "symmetricDecryptView",
 	"/bip32", "bip32View", 
 	"/derivation", "derivationView", 
 	)
@@ -81,10 +83,8 @@ class verifySignAuthView:
 	def POST(self):
 		form = web.input(address={}, challengeHidden={}, challengeVisual={}, signature={})
 		try:
-			verified = verifyAuth(form['challengeHidden'], form['challengeVisual'], form['address'], form['signature'].encode())
-			print("------->>> VERFI: ", verified);
-		except Exception as e:
-			print("------->>> ERROR: ", e);
+			verified = verifyAuth(form['challengeHidden'], form['challengeVisual'], form['address'], form['signature'].encode())			
+		except Exception as e:			
 			return json.dumps(
 				{
 					'error': True,
@@ -121,9 +121,22 @@ class signMessageView:
 		return render.signmsg()
 		
 	def POST(self):
-		values = web.input(path={},message={})
-		res = signMessage(values['path'], values['message'], masterkey)        
-		return json.dumps({'address':str(res[0]), 'signature':res[1].decode()})
+		try:		
+			values = web.input(path={},message={})
+			res = signMessage(values['path'], values['message'], masterkey)
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				})
+		return json.dumps(
+			{
+				'error': False,
+				'message': '',
+				'address':str(res[0]),
+				'signature':res[1].decode(),
+			})
 
 
 class verifyMessageView:
@@ -132,21 +145,65 @@ class verifyMessageView:
 
 	def POST(self):
 		try:
-			values = web.input(address={},signature={},message={})        
-			print(values['address'], values['signature'], values['message'])        
+			values = web.input(address={},signature={},message={})
 			verified = verifyMessage(values['address'], values['signature'], values['message'])
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+					'verified': False,
+				})
+		return json.dumps(
+			{
+				'error': False,
+				'message': '',
+				'verified': verified,
+			})
 
-			return json.dumps({'verified':verified})
-		except Exception:
-			print("Exception!!!")
 
-
-class symmetricEncryptionView:
+class symmetricEncryptView:
 	def GET(self):
-		return render.signmsg("")
+		return render.symEncrypt("")
 
 	def POST(self):
-		pass
+		formToCipher = web.input(path={}, key={}, value={})
+		try:
+			value_ciphered = cipherKeyValue(formToCipher['path'], masterkey, formToCipher['value'])
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				}) 		
+		return json.dumps(
+			{
+				'error': False,
+				'message': '',
+				'valueCiphered': value_ciphered.decode(),
+			})
+
+
+class symmetricDecryptView:
+	def POST(self):
+		formToCipher = web.input(path={}, key={}, value={})
+		try:
+			print("--->>> ", formToCipher)
+			value_deciphered = decipherKeyValue(formToCipher['path'], masterkey, formToCipher['value'].encode())
+			print("--->>> ", value_deciphered)
+		except Exception as e:
+			print("--->>> ", e)
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				}) 		
+		return json.dumps(
+			{
+				'error': False,
+				'message': '',
+				'valueDeciphered': value_deciphered,
+			})
 
 
 class bip32View:

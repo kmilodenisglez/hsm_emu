@@ -144,6 +144,7 @@ $var cssfiles:
 <script type="text/javascript" src="/static/qrcode.js"></script>
 <script type="text/javascript">
   jQuery(document).ready(function() {
+      highlight("#bip32");       
       cleanKeyInfo();
   });
             
@@ -161,23 +162,23 @@ $var cssfiles:
               type: "POST",
               data: {bip32Key : b32key},
               success: function(data) {
-                var obj = jQuery.parseJSON( data );
+                var result = jQuery.parseJSON( data );
                 //jQuery('#foo').html(data).hide().fadeIn(1500);
-                if(obj.error)
+                if(result.error)
                 {
-                  setErrorState(jQuery("#b32Key"), true, obj.message, ".input-group");
+                  setErrorState(jQuery("#b32Key"), true, result.message, ".input-group");
                 }
                 else
                 {
                   setErrorState(jQuery("#b32Key"), false, '', ".input-group");
                   //alert(title.title);
-                  title.textContent = obj.title;
-                  version.value = obj.version;
-                  depth.value = obj.depth;
-                  fingerprint.value = obj.parentFingerprint;
-                  childindex.value = obj.childIndex;
-                  chaincode.value = obj.chainCode;
-                  key.value = obj.key;                  
+                  title.textContent = result.title;
+                  version.value = result.version;
+                  depth.value = result.depth;
+                  fingerprint.value = result.parentFingerprint;
+                  childindex.value = result.childIndex;
+                  chaincode.value = result.chainCode;
+                  key.value = result.key;                  
                 }                
               },
               });
@@ -198,20 +199,20 @@ $var cssfiles:
               url: "/derivation",
               data: {bip32Key : b32key, b32Path:b32CustomPath},
               success: function(data) {
-                var obj = jQuery.parseJSON( data );
+                var result = jQuery.parseJSON( data );
                 //jQuery('#foo').html(data).hide().fadeIn(1500);
-                if(obj.error)
+                if(result.error)
                 {
-                  setErrorState(jQuery("#b32Key"), true, obj.message, ".input-group");
+                  setErrorState(jQuery("#b32Key"), true, result.message, ".input-group");
                 }
                 else
                 {
                   setErrorState(jQuery("#b32Key"), false, '', ".input-group");
-                  derivedPrivateKey.value = obj.derivedPrivKey;
-                  derivedPrivateKeyWif.value = obj.wifDerivedPrivKey;
-                  derivedPublicKey.value = obj.derivedPubKey;
-                  derivedPublicKeyHex.value = obj.hexDerivedPubKey;
-                  address.value = obj.address;
+                  derivedPrivateKey.value = result.derivedPrivKey;
+                  derivedPrivateKeyWif.value = result.wifDerivedPrivKey;
+                  derivedPublicKey.value = result.derivedPubKey;
+                  derivedPublicKeyHex.value = result.hexDerivedPubKey;
+                  address.value = result.address;
                   generateQrCode(address.value);
                 }
               },
@@ -253,6 +254,5 @@ $var cssfiles:
           group.removeClass('has-warning').removeClass('has-error');
           group.attr('title','');
       }
-    }  
-
-        </script>
+    }
+</script>

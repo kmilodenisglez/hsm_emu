@@ -14,8 +14,8 @@ $var cssfiles:
 
 <script type="text/javascript">
   jQuery(document).ready(function() {
-      
-  });
+      highlight("#login");
+  });  
 
   function cancelSign() {
 	jQuery("#form-sign").addClass('hidden');
@@ -34,7 +34,7 @@ $var cssfiles:
                 }
                 else
                 {   
-                	alert('check-in the console');
+                	alert('check-in the browser console');
                 	console.log('Address:', result.address);
 					console.log('Public key:', result.publicKey); // pubkey in hex
 					console.log('Signature:', result.signature); // signature in hex

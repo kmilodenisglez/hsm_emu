@@ -35,6 +35,9 @@ $var cssfiles:
   <pre id="response"></pre>
 
 <script>
+  jQuery(document).ready(function() {
+      highlight("#verifyAuth");
+  });  
     function verifyAuth() {
       var address = document.getElementById("address").value;
       var challengeHidden = document.getElementById("challengeHidden").value;

@@ -1,0 +1,125 @@
+$def with (text)
+$var jsfiles: 
+$var cssfiles:
+  <table>
+    <tr>
+      <td colspan="2" style="font-weight:bold">Encrypt</td>
+    </tr>
+    <tr>
+      <td>Path:</td>
+      <td><input id="pathToCipher" value="m/0'/0'/276'"></td>
+    </tr>
+    <tr>
+      <td>Key:</td>
+      <td><input id="keyToCipher" value="This is displayed on device on encrypt." size="64"></td>
+    </tr>
+    <tr>
+      <td>Value:</td>
+      <td><textarea id="valueToCipher" placeholder="1c0ffeec0ffeec0ffeec0ffeec0ffee1">1c0ffeec0ffeec0ffeec0ffeec0ffee1</textarea></td>
+    </tr>    
+    <tr>
+      <td></td>
+      <td><button class="btn btn-primary btn-sm" onclick="cipherKeyValue()">Cipher</button></td>
+    </tr>
+  </table>
+
+  <table>
+    <tr>
+      <td colspan="2" style="font-weight:bold">Decrypt</td>
+    </tr>
+    <tr>
+      <td>Path:</td>
+      <td><input id="pathToDecipher" value="m/0'/0'/276'"></td>
+    </tr>
+    <tr>
+      <td>Key:</td>
+      <td><input id="keyToDecipher" value="This is displayed on device on encrypt." size="64"></td>
+    </tr>
+    <tr>
+      <td>Value:</td>
+      <td><textarea id="valueToDecipher" placeholder="gAAAAABaVULnsgr3AL9vwmS3WjFz1E-8u7TMQB53j2SnfK3xFMdpgM0ieAWMIyiVqGYRLyU04G2SA7HGe3lQJUjeSiDIx1vfT_N6a3QuIZ9hfcUpwE7LJEI=">gAAAAABaVULnsgr3AL9vwmS3WjFz1E-8u7TMQB53j2SnfK3xFMdpgM0ieAWMIyiVqGYRLyU04G2SA7HGe3lQJUjeSiDIx1vfT_N6a3QuIZ9hfcUpwE7LJEI=</textarea></td>
+    </tr>    
+    <tr>
+      <td></td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="decipherKeyValue()">Decipher</button>
+      </td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <pre id="response"></pre>
+
+<script>
+  jQuery(document).ready(function() {
+      highlight("#cipherKeyValue");
+  });  
+  function cipherKeyValue() { 
+    var inputToPath = document.getElementById("pathToCipher").value;
+    var inputToKey = document.getElementById("keyToCipher").value;
+    var inputToValue = document.getElementById("valueToCipher").value;
+    
+    var inputFromPath = document.getElementById("pathToDecipher");
+    var inputFromKey = document.getElementById("keyToDecipher");
+    var inputFromValue = document.getElementById("valueToDecipher");
+
+     jQuery.ajax({
+              type: "POST",
+              data: {path : inputToPath, key: inputToKey, value: inputToValue},
+              success: function(data) {
+                var result = jQuery.parseJSON( data );
+                if(result.error == false)
+                {
+                  console.log("Ciphered Success!!!");
+                  inputFromPath.value = inputToPath;
+                  inputFromKey.value = inputToKey;
+                  inputFromValue.value = result.valueCiphered;
+                }
+                else
+                {
+                  console.log("Fail!.");
+                  alert("Fail!.")
+                }                
+              },
+        });
+      }
+
+  function decipherKeyValue() {
+    var inputFromPath = document.getElementById("pathToDecipher").value;
+    var inputFromKey = document.getElementById("keyToDecipher").value;
+    var inputFromValue = document.getElementById("valueToDecipher").value;
+            
+    console.log("==============decipher==============");
+    console.log("Path: ", inputFromPath);
+    console.log("Key: ", inputFromKey);
+    console.log("Value: ", inputFromValue);
+
+     jQuery.ajax({
+              url: "/decipherKeyValue",
+              type: "POST",
+              data: {path : inputFromPath, key: inputFromKey, value: inputFromValue},
+              success: function(data) { 
+                var result = jQuery.parseJSON( data );
+                if(result.error == false)
+                {
+                  console.log("Deciphered Success!!!");
+                  alert("Decyphered Success. Checkin browser console")    
+                  console.log("Value Decyphered: ", result.valueDeciphered);
+
+                }
+                else
+                {
+                  console.log("SERVER ERROR: ", result.message);
+                  alert("SERVER ERROR: ", result.message);
+                }
+                
+                
+              },
+              error: function(data) {
+                alert("fail!!!");
+              },
+      });
+  }
+</script>
+

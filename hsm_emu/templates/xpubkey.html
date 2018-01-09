@@ -14,7 +14,10 @@ $var cssfiles:
         <br><br>
         <span id="foo">$text</span>        
         
-<script type="text/javascript">            
+<script type="text/javascript">  
+  jQuery(document).ready(function() {
+      highlight("#getxpub");
+  });            
 function sendPath() {
     var input_string = document.getElementById("path").value;
     

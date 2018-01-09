@@ -48,6 +48,9 @@ $var cssfiles:
   <pre id="response"></pre>
 
 <script>
+  jQuery(document).ready(function() {
+      highlight("#signmessage");
+  });    
   function signMessage() { 
     var input_path = document.getElementById("path").value;
     var input_message = document.getElementById("message").value;
@@ -59,11 +62,26 @@ $var cssfiles:
      jQuery.ajax({
               type: "POST",
               data: {path : input_path, message: input_message},
-              success: function(data, res) {
-                var obj = jQuery.parseJSON( data );
-                address.value = obj.address;
-                signature.value = obj.signature;
-                messageV.value = input_message;
+              success: function(data) {
+                var result = jQuery.parseJSON( data );
+                  if(result.error == true)
+                  {
+                    console.log("Server Error: ", result.message);
+                    alert("Server Error: "+ result.message);
+                  }
+                  else
+                  {
+                    console.log("Success! Sign.");                    
+                    console.log("==============sign==============");
+                    console.log("Address: ", result.address);
+                    console.log("Signature: ", result.signature);
+                    console.log("Value: ", input_message);                    
+                    alert("Success! Sign. Check browser console...")  
+
+                    address.value = result.address;
+                    signature.value = result.signature;
+                    messageV.value = input_message;
+                  }                
               },
         });
       }
@@ -73,15 +91,25 @@ $var cssfiles:
       var address_input = document.getElementById("address").value;
       var signature_input = document.getElementById("signature").value;
             
-      console.log(address_input, signature_input, messagev_input)
+      console.log("")
+      console.log("==============verify==============");
+      console.log("Address Input: ", address_input);
+      console.log("Signature Input: ", signature_input);
+      console.log("Value Input: ", messagev_input); 
 
        jQuery.ajax({
                 url: "/verifymessage",
                 type: "POST",
                 data: {address: address_input, signature:signature_input, message:messagev_input},
                 success: function(data, res) { 
-                  var obj = jQuery.parseJSON( data );
-                  if(obj.verified == true)
+                  var result = jQuery.parseJSON( data );
+
+                  if(result.error == true)
+                  {
+                    console.log("Server Error: ", result.message);
+                    alert("Server Error: "+ result.message);
+                  }
+                  else if(result.verified == true)
                   {
                     console.log("Success! Verified.");                                        
                     alert("Success! Verified.")                 
