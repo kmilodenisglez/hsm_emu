@@ -64,6 +64,11 @@ $var cssfiles:
     var inputFromKey = document.getElementById("keyToDecipher");
     var inputFromValue = document.getElementById("valueToDecipher");
 
+    console.log("==============cipher==============");
+    console.log("Path: ", inputToPath);
+    console.log("Key: ", inputToKey);
+    console.log("Value: ", inputToValue);    
+
      jQuery.ajax({
               type: "POST",
               data: {path : inputToPath, key: inputToKey, value: inputToValue},
@@ -72,6 +77,8 @@ $var cssfiles:
                 if(result.error == false)
                 {
                   console.log("Ciphered Success!!!");
+                  console.log("Value Ciphered: ", result.valueCiphered);
+                  console.log("");
                   inputFromPath.value = inputToPath;
                   inputFromKey.value = inputToKey;
                   inputFromValue.value = result.valueCiphered;
@@ -104,9 +111,9 @@ $var cssfiles:
                 if(result.error == false)
                 {
                   console.log("Deciphered Success!!!");
-                  alert("Decyphered Success. Checkin browser console")    
                   console.log("Value Decyphered: ", result.valueDeciphered);
-
+                  console.log("");
+                  alert("Decyphered Success. Checkin browser console")    
                 }
                 else
                 {

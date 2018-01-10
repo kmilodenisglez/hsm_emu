@@ -170,7 +170,7 @@ class symmetricEncryptView:
 	def POST(self):
 		formToCipher = web.input(path={}, key={}, value={})
 		try:
-			value_ciphered = cipherKeyValue(formToCipher['path'], masterkey, formToCipher['value'])
+			value_ciphered = cipherKeyValue(formToCipher['path'], formToCipher['key'].encode(), formToCipher['value'].encode(), masterkey)
 		except Exception as e:
 			return json.dumps(
 				{
@@ -187,10 +187,10 @@ class symmetricEncryptView:
 
 class symmetricDecryptView:
 	def POST(self):
-		formToCipher = web.input(path={}, key={}, value={})
+		formToDecipher = web.input(path={}, key={}, value={})
 		try:
-			print("--->>> ", formToCipher)
-			value_deciphered = decipherKeyValue(formToCipher['path'], masterkey, formToCipher['value'].encode())
+			print("--->>> ", formToDecipher)
+			value_deciphered = decipherKeyValue(formToDecipher['path'], formToDecipher['key'].encode(), formToDecipher['value'].encode(), masterkey)
 			print("--->>> ", value_deciphered)
 		except Exception as e:
 			print("--->>> ", e)
@@ -203,7 +203,7 @@ class symmetricDecryptView:
 			{
 				'error': False,
 				'message': '',
-				'valueDeciphered': value_deciphered,
+				'valueDeciphered': value_deciphered.decode(),
 			})
 
 

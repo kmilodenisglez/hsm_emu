@@ -16,6 +16,9 @@ from btcpy.structs.sig import P2pkSolver, P2pkScript, P2pkhSolver, P2pkhScript, 
 from btcpy.structs.script import ScriptSig
 from btcpy.structs.transaction import Transaction, Sequence, TxOut, Locktime, TxIn, MutableTransaction, MutableTxIn
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.backends import default_backend
 from bitcoin import SelectParams
 from bitcoin.core import lx, x, b2x, COIN
 from bitcoin.wallet import CBitcoinSecret
@@ -149,12 +152,12 @@ def verifyMessage(address, signature, message):
 """
 
 
-def cipherKeyValue(path, key, value):
+def cipherKeyValue(path, key, value, masterkey):
 	try:
-		private_key_derived = derive(key, path)
-		bytes_private_key = private_key_derived.key.serialize()
-		base64_private_key = base64.urlsafe_b64encode(bytes_private_key)
-
+		if not isinstance(key, bytes):
+			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
+		if not isinstance(value, bytes):
+			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    					
 		"""
 		Fernet is built on top of a number of standard cryptographic 
 		primitives. Specifically it uses:   
@@ -163,8 +166,26 @@ def cipherKeyValue(path, key, value):
 		HMAC using SHA256 for authentication.
 		Initialization vectors are generated using os.urandom().
 		"""
-		fernet = Fernet(base64_private_key)
-		return fernet.encrypt(x(value))
+		private_key_derived = derive(masterkey, path)
+		byte_private_key = private_key_derived.key.serialize()
+
+
+		backend = default_backend()
+		salt = byte_private_key
+		info = b"hkdf-bitcoin-regtest-example"
+		hkdf = HKDF(
+		     algorithm=hashes.SHA256(),
+		     length=32,
+		     salt=salt,
+		     info=info,
+		     backend=backend
+		 )
+
+		key = hkdf.derive(key)
+		key_encode = base64.urlsafe_b64encode(key)	
+			
+		fernet = Fernet(key_encode)
+		return fernet.encrypt(value)
 	except Exception as e:
 		raise e
 
@@ -179,13 +200,34 @@ value = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
 """
 
 
-def decipherKeyValue(path, key, value):
-	private_key_derived = derive(key, path)
-	byte_private_key = private_key_derived.key.serialize()
-	base64_private_key = base64.urlsafe_b64encode(byte_private_key)
+def decipherKeyValue(path, key, value, masterkey):
+	try:
+		if not isinstance(key, bytes):
+			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
+		if not isinstance(value, bytes):
+			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    						
 
-	fernet = Fernet(base64_private_key)
-	return b2x(fernet.decrypt(value))
+		private_key_derived = derive(masterkey, path)
+		byte_private_key = private_key_derived.key.serialize()
+
+		backend = default_backend()
+		salt = byte_private_key
+		info = b"hkdf-bitcoin-regtest-example"
+		hkdf = HKDF(
+		     algorithm=hashes.SHA256(),
+		     length=32,
+		     salt=salt,
+		     info=info,
+		     backend=backend
+		 )
+
+		key = hkdf.derive(key)
+		key_encode = base64.urlsafe_b64encode(key)	
+			
+		fernet = Fernet(key_encode)
+		return fernet.decrypt(value)
+	except Exception as e:
+		raise e	
 
 
 def raw_transaction(ins, outs):
@@ -206,7 +248,7 @@ if __name__ == '__main__':
 	masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'
 
 
-	print(bip32KeyInfoFromKey(masterkey))
+	#print(bip32KeyInfoFromKey(masterkey))
 	"""
 	to_cipher = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
 
