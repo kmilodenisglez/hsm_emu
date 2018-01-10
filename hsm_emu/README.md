@@ -95,5 +95,5 @@ $ make start
 
 ## TODO
 Since this example is still a work in progress, the following roadmap lists the improvements that must be made:
-* Add view for [Symmetric key-value encryption, Get account info]
+* Add view for [Get account info]
 * Add test for sendtransaction, signrawtransaction and other functionalities already implemented in the libraries.
