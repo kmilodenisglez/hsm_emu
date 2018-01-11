@@ -20,11 +20,11 @@ keyEncoded = b'dK__XtdhYTQaa6mPND5rMSkTfXpHCF4TZJH3uXUZDKE='
 
 class TestCipherDecipher(unittest.TestCase):
 	def test_decipher_success(self):
-		valueCiphered = cipherKeyValue(path, key, valueToCipher, masterkey)
+		valueCiphered = cipherKeyValue(path, key, valueToCipher)
 		print('value to cipher: ', valueToCipher)
 		print('value ciphered: ', valueCiphered)
 
-		valueDeciphered = decipherKeyValue(path, key, valueCiphered, masterkey)
+		valueDeciphered = decipherKeyValue(path, key, valueCiphered)
 		self.assertEqual(valueDeciphered, valueToCipher)
 		print('value deciphered: ', valueDeciphered)
 

@@ -7,14 +7,12 @@ if sys.version_info.major < 3:
 import unittest
 from context import signMessage, verifyMessage
 
-masterkey = 'tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF'
-
 
 class TestSignVerify(unittest.TestCase):
 	def test_verify_success(self):
 		path = "m/0'/0'/276'"
 		message = "Hola mundo"
-		address_and_signature = signMessage(path, message, masterkey)
+		address_and_signature = signMessage(path, message)
 
 		address = address_and_signature[0]	# object btcpy.struct.Address
 		signature = address_and_signature[1] # base64 sign 

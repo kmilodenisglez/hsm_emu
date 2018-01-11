@@ -74,7 +74,7 @@ def verifyAuth(challenge_hidden, challenge_visual, address, signature, version =
 if __name__ == '__main__':	
 	challenge_hidden = getChallengeHidden()
 	challenge_visual = getChallengeVisual()
-	address = "mkcuRYXhBb6Pg8jjXuGSbfTXCJBrHPSp4d"
+	address = "mrRXNQEvCyajiUhkSmYHSk7aeqsJuXnxLt"
 	signature = ""
 
 	url = urlparse('http://satoshi@bitcoin.org:8080/login?1')
