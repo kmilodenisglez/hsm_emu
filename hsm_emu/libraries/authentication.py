@@ -16,8 +16,6 @@ from bitcoin.core import x, b2x
 
 from utils_wallets import verifyMessage, signMessage
 
-key = masterkey = 'tprv8ZgxMBicQKsPe7ZhPMqWcq8ZkQearQj5rYJCpbvdGF4bq5Hu1bpMKoRpCHgn54E1FF4shVYJrT4ESonYWRLWRyqEEVbgWuATBa3eevd5vRX'	
-
 
 """
 	Genera un hash256 (64 bytes) seudoaleatorio en cada nueva llamada.
@@ -56,7 +54,7 @@ def signAuth(challenge_hidden, challenge_visual, hdkeypath):
 	binary_challenge_visual = challenge_visual if isinstance(challenge_visual, bytes) else bytes(challenge_visual, 'utf-8')        
 	h2 = hashlib.sha256(binary_challenge_visual).digest()        
 	message = h1 + h2	
-	return signMessage(hdkeypath, b2x(message), key)
+	return signMessage(hdkeypath, b2x(message))
 
 
 def verifyAuth(challenge_hidden, challenge_visual, address, signature, version = 2):

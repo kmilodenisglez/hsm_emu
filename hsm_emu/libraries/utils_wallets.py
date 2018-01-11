@@ -23,6 +23,8 @@ from bitcoin import SelectParams
 from bitcoin.core import lx, x, b2x, COIN
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+from storage import getData
+
 
 net = 'regtest'
 actived_mainnet = (True and (net == 'mainnet'))
@@ -30,6 +32,10 @@ actived_mainnet = (True and (net == 'mainnet'))
 setup(net)  # set net of btcpy
 SelectParams(net)  # set net of bitcoin
 
+try:
+	masterkey = getData()['masterprivkey'] #obtenemos las masterkey de un storage
+except Exception as e:
+	raise e
 
 """
  Retrives Key Info of an Extended Private key
@@ -49,7 +55,7 @@ def bip32KeyInfoFromKey(prvKey):
 """
 
 
-def getXPubKey(path, masterkey=None):
+def getXPubKey(path):
 	try:
 		private_key_derived = derive(masterkey, path)
 		pubkey = private_key_derived.key.pub()
@@ -113,7 +119,7 @@ def customPathDerivation(key, path):
 """
 
 
-def signMessage(path, message, masterkey = None):
+def signMessage(path, message):
 	try:
 		private_key_derived = derive(masterkey, path)
 		address = private_key_derived.key.pub().to_address()
@@ -152,7 +158,7 @@ def verifyMessage(address, signature, message):
 """
 
 
-def cipherKeyValue(path, key, value, masterkey):
+def cipherKeyValue(path, key, value):
 	try:
 		if not isinstance(key, bytes):
 			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
@@ -200,7 +206,7 @@ value = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
 """
 
 
-def decipherKeyValue(path, key, value, masterkey):
+def decipherKeyValue(path, key, value):
 	try:
 		if not isinstance(key, bytes):
 			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		

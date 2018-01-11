@@ -20,7 +20,7 @@ web_root = os.path.abspath(os.path.dirname(__file__))
 os.chdir(web_root)
 
 #setup('regtest')
-masterkey = 'tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF'
+#masterkey = 'tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF'
 
 
 def make_text(string):
@@ -105,13 +105,14 @@ class getxpubView:
 		return render.xpubkey("Your pubkey goes here.")
 		
 	def POST(self):
-		form = web.input(path={})
-		#form.validates()
-		print(form)
-		path = form['path']
-		pubkey = ['','','']
-		if(len(path) > 4): #validar con re (Regular expression)
-			pubkey = getXPubKey(path, masterkey)
+		try:
+			form = web.input(path={})
+			path = form['path']
+			pubkey = ['','','']
+			if(len(path) > 4): #validar con re (Regular expression)
+				pubkey = getXPubKey(path)
+		except Exception as e:
+			return make_text("<b>SERVER ERROR: </b> "+str(e))
 		
 		return make_text("<b>HD pubkey:</b> "+pubkey[0]+"</br></br> <b>HEX pubkey:</b> "+str(pubkey[1])
 			+"</br></br> <b>Address:</b> "+str(pubkey[2]))
@@ -124,7 +125,7 @@ class signMessageView:
 	def POST(self):
 		try:		
 			values = web.input(path={},message={})
-			res = signMessage(values['path'], values['message'], masterkey)
+			res = signMessage(values['path'], values['message'])
 		except Exception as e:
 			return json.dumps(
 				{
@@ -170,7 +171,7 @@ class symmetricEncryptView:
 	def POST(self):
 		formToCipher = web.input(path={}, key={}, value={})
 		try:
-			value_ciphered = cipherKeyValue(formToCipher['path'], formToCipher['key'].encode(), formToCipher['value'].encode(), masterkey)
+			value_ciphered = cipherKeyValue(formToCipher['path'], formToCipher['key'].encode(), formToCipher['value'].encode())
 		except Exception as e:
 			return json.dumps(
 				{
@@ -190,7 +191,7 @@ class symmetricDecryptView:
 		formToDecipher = web.input(path={}, key={}, value={})
 		try:
 			print("--->>> ", formToDecipher)
-			value_deciphered = decipherKeyValue(formToDecipher['path'], formToDecipher['key'].encode(), formToDecipher['value'].encode(), masterkey)
+			value_deciphered = decipherKeyValue(formToDecipher['path'], formToDecipher['key'].encode(), formToDecipher['value'].encode())
 			print("--->>> ", value_deciphered)
 		except Exception as e:
 			print("--->>> ", e)

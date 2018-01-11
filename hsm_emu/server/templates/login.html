@@ -33,15 +33,14 @@ $var cssfiles:
                  	alert(result.error);
                 }
                 else
-                {   
-                	alert('check-in the browser console');
+                { 
                 	console.log('Address:', result.address);
-					console.log('Public key:', result.publicKey); // pubkey in hex
-					console.log('Signature:', result.signature); // signature in hex
-					console.log('Only for test, visit the link: http://localhost:8080/verifyAuth');
-					console.log('challengeVisual:', "$challengeVisual");
-					console.log('challengeHidden:', "$challengeHidden");
-
+                  console.log('Public key:', result.publicKey); // pubkey in hex
+        					console.log('Signature:', result.signature); // signature in hex
+        					console.log('Only for test, visit the link: http://localhost:8080/verifyAuth');
+        					console.log('challengeVisual:', "$challengeVisual");
+        					console.log('challengeHidden:', "$challengeHidden");
+                  alert('check-in the browser console');
                 }                
               },
               });
