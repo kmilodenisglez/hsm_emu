@@ -1,5 +1,13 @@
+#!/usr/bin/env python3
 import os
+import sys
 import json
+
+
+if sys.version_info.major < 3:
+	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
+	sys.exit(1)
+
 
 """
 This functionalitys are temporaries
