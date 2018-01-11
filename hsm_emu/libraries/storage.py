@@ -10,7 +10,7 @@ if sys.version_info.major < 3:
 
 
 """
-This functionalitys are temporaries
+These functionalities are temporary, then replaced by serialization or something like that.
 """
 filename = 'storage'
 dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
