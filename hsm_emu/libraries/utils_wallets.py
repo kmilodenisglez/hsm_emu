@@ -4,9 +4,9 @@ if sys.version_info.major < 3:
 	sys.stderr.write('Sorry, Python 3.x required by this example.\n')
 	sys.exit(1)
 
-import base64
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+import base64
 from bitcoin.rpc import RawProxy, JSONRPCError, Proxy
 
 from regtest import Manager
@@ -15,6 +15,8 @@ from btcpy.structs.hd import ExtendedKey
 from btcpy.structs.sig import P2pkSolver, P2pkScript, P2pkhSolver, P2pkhScript, Sighash, P2shSolver, P2shScript
 from btcpy.structs.script import ScriptSig
 from btcpy.structs.transaction import Transaction, Sequence, TxOut, Locktime, TxIn, MutableTransaction, MutableTxIn
+import ecdsa
+from ecdsa.curves import SECP256k1
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
@@ -33,7 +35,7 @@ setup(net)  # set net of btcpy
 SelectParams(net)  # set net of bitcoin
 
 try:
-	masterkey = getData()['masterprivkey'] #obtenemos las masterkey de un storage
+	masterkey = getData()['masterprivkey'] # we get the masterkey of a storage.
 except Exception as e:
 	raise e
 
@@ -147,6 +149,34 @@ def verifyMessage(address, signature, message):
 	except Exception as e:
 		raise e
 
+
+"""
+    Genera una seed aleatorio de 32 bits usando HKDF 
+    (HMAC-based Extract-and-Expand Key Derivation Function).
+"""
+
+
+def secret(key, salt, info):
+    if not isinstance(key, bytes):
+        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))
+    if not isinstance(salt, bytes):
+        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(salt)))
+    if not isinstance(info, bytes):
+        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(info)))
+    try:
+        kdf = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,        
+            info=info,
+            backend=default_backend()
+        )
+        sc = kdf.derive(key)    
+        return sc
+    except Exception as e:
+        raise e
+
+
 """
 	Encrypt value (must be hexadecimal) using the private key derived by given 
 	BIP32 path and the given key.
@@ -159,11 +189,11 @@ def verifyMessage(address, signature, message):
 
 
 def cipherKeyValue(path, key, value):
+	if not isinstance(key, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
+	if not isinstance(value, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    						
 	try:
-		if not isinstance(key, bytes):
-			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
-		if not isinstance(value, bytes):
-			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    					
 		"""
 		Fernet is built on top of a number of standard cryptographic 
 		primitives. Specifically it uses:   
@@ -171,11 +201,17 @@ def cipherKeyValue(path, key, value):
 		AES in CBC mode with a 128-bit key for encryption; using PKCS7 padding.
 		HMAC using SHA256 for authentication.
 		Initialization vectors are generated using os.urandom().
+
+		We use a key and path with Fernet. To do this, you need to run the key through 
+		a key derivation function such as HKDF (HMAC-based Extract-and-Expand Key Derivation Function)
+		is suitable for deriving keys of a fixed size used for other cryptographic operations..
 		"""
 		private_key_derived = derive(masterkey, path)
 		byte_private_key = private_key_derived.key.serialize()
 
-
+		salt = byte_private_key
+		info = b"hkdf-bitcoin-regtest-example"
+		"""
 		backend = default_backend()
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"
@@ -187,8 +223,10 @@ def cipherKeyValue(path, key, value):
 		     backend=backend
 		 )
 
-		key = hkdf.derive(key)
-		key_encode = base64.urlsafe_b64encode(key)	
+		_key = hkdf.derive(key)
+		"""
+		sc = secret(key, salt, info)
+		key_encode = base64.urlsafe_b64encode(sc)	
 			
 		fernet = Fernet(key_encode)
 		return fernet.encrypt(value)
@@ -216,6 +254,9 @@ def decipherKeyValue(path, key, value):
 		private_key_derived = derive(masterkey, path)
 		byte_private_key = private_key_derived.key.serialize()
 
+		salt = byte_private_key
+		info = b"hkdf-bitcoin-regtest-example"		
+		"""
 		backend = default_backend()
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"
@@ -227,13 +268,27 @@ def decipherKeyValue(path, key, value):
 		     backend=backend
 		 )
 
-		key = hkdf.derive(key)
-		key_encode = base64.urlsafe_b64encode(key)	
+		_key = hkdf.derive(key)
+		"""
+		sc = secret(key, salt, info)
+		key_encode = base64.urlsafe_b64encode(sc)	
 			
 		fernet = Fernet(key_encode)
 		return fernet.decrypt(value)
 	except Exception as e:
 		raise e	
+
+"""
+Create a key
+"""
+
+def generatePrivateMasterKey():
+    key = os.urandom(16)
+    salt = os.urandom(16)
+    info = b"hkdf-bitcoin-regtest-example"  
+    sc = secret(key, salt, info)
+    k = ecdsa.SigningKey.from_string(sc, curve=SECP256k1)
+    return k
 
 
 def raw_transaction(ins, outs):
