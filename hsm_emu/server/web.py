@@ -11,9 +11,9 @@ from urllib.parse import urlparse
 from libraries import web
 from libraries.authentication import (getChallengeHidden, getChallengeVisual, 
 	checkPath, signAuth, verifyAuth)
-from libraries.utils_wallets import (setup, customPathDerivation,  
+from libraries.utils_wallets import (customPathDerivation,  
 	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey, 
-	cipherKeyValue, decipherKeyValue)
+	cipherKeyValue, decipherKeyValue, generatePrivateMasterKey)
 
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -39,6 +39,7 @@ urls = (
 	"/decipherKeyValue", "symmetricDecryptView",
 	"/bip32", "bip32View", 
 	"/derivation", "derivationView", 
+	"/generate", "generateKeyView",
 	)
 
 
@@ -254,6 +255,39 @@ class derivationView:
 		res.update({'error': False, 'message': '',})
 		return json.dumps(res)
 
+
+class generateKeyView:
+	def GET(self):
+		try:			
+			wallet = generatePrivateMasterKey()
+			masterkey_xpriv = wallet.encode(mainnet=False)
+			version = wallet.get_version().hex()
+			depth = wallet.depth
+			fingerprint = wallet.parent_fingerprint.hex()
+			index = wallet.index
+			chaincode = wallet.chaincode.hex()			
+			masterkey_wif = wallet.key.to_wif()
+			masterkey_hex = wallet.key.hexlify()			
+
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				})
+		return json.dumps(
+			{
+				'error': False,
+				'message': '',
+				'masterkey_xpriv': masterkey_xpriv,				
+				'version': version,
+				'depth': depth,
+				'fingerprint': fingerprint,
+				'index': index,
+				'chaincode': chaincode,
+				'masterkey_wif': masterkey_wif,
+				'masterkey_hex': masterkey_hex,
+			})
 
 if __name__ == '__main__':
 	app.run()

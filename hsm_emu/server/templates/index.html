@@ -2,3 +2,141 @@ $def with (text)
 $var jsfiles: 
 $var cssfiles:
 <h2>$text</h2>
+
+<h4>Examples usando las funcionalidades implementadas en <a href="https://github.com/learning-/hsm_emu/libraries" target="_blank"><code>hsm_emu/libraries</code></a>:</h4>
+<br><br>
+<div class="input-group">
+	<legend>BIP32 Master Private Key Generator</legend>      
+	<h5>Generate a key usando la función <code>generatePrivateMasterKey()</code></h5>
+<br><button id="btn_search_producto" onclick="generateKey()" class="btn btn-primary" type="button">	Generate Key                                       
+</button>
+<!--
+<br><span id="key">Your key goes here.</span>
+-->
+</div>
+<br><br>
+<div class="" id="b32">  
+	<form action="/" class="form-horizontal" method="get">
+    <fieldset>      
+      <div class="form-group">
+        <label class="col-lg-2 control-label">Key: </label>
+        <div class="col-lg-10">
+          <div class="row">
+            <div class="col-lg-12">
+              <label class="control-label" id="b32MasterKey">-</label>
+            </div>
+          </div>
+          <br />
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Version</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyVersion" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Depth</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyDepth" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Parent Fingerprint</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyParentFingerprint" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Child Index</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyIndex" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Chain Code</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyChainCode" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Key</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyWif" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-lg-2 control-label">Key Hex</div>
+              <div class="col-lg-10 col-lg-10-inner">
+                  <input class="form-control" id="b32MasterKeyHex" disabled />
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+</fieldset>
+</form>
+</div>
+<script type="text/javascript">  
+  jQuery(document).ready(function() {
+  	cleanKeyInfo();
+  });            
+function generateKey() {
+  var b32masterkey = document.getElementById("b32MasterKey");
+  var version = document.getElementById("b32MasterKeyVersion");
+  var depth = document.getElementById("b32MasterKeyDepth");
+  var fingerprint = document.getElementById("b32MasterKeyParentFingerprint");
+  var index = document.getElementById("b32MasterKeyIndex");
+  var chaincode = document.getElementById("b32MasterKeyChainCode");
+  var keywif = document.getElementById("b32MasterKeyWif");
+  var keyhex = document.getElementById("b32MasterKeyHex");  
+
+    jQuery.ajax({
+            type: "GET", 
+            url: "/generate",           
+            success: function(data) {
+                var result = jQuery.parseJSON( data );                
+                if(result.error)
+                {
+                	console.log("Server Error: ", result.message);
+                	alert("SERVER ERROR: ", result.message)
+                }
+                else
+                {
+            		b32masterkey.textContent = result.masterkey_xpriv;
+                  	version.value = result.version;
+                  	depth.value = result.depth;
+                  	fingerprint.value = result.fingerprint;
+                  	index.value = result.index;
+                  	chaincode.value = result.chaincode;
+                  	keywif.value = result.masterkey_wif;
+                  	keyhex.value = result.masterkey_hex;
+                }
+            
+            },
+            });
+    return false;
+}
+
+function cleanKeyInfo() {
+  document.getElementById("b32MasterKey").textContent = '-';
+  document.getElementById("b32MasterKeyVersion").value = '';  
+  document.getElementById("b32MasterKeyDepth").value = '';
+  document.getElementById("b32MasterKeyParentFingerprint").value = '';
+  document.getElementById("b32MasterKeyIndex").value = '';
+  document.getElementById("b32MasterKeyChainCode").value = '';
+  document.getElementById("b32MasterKeyWif").value = '';
+  document.getElementById("b32MasterKeyHex").value = '';
+  }
+</script>
