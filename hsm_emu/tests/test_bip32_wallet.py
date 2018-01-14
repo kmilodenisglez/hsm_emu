@@ -56,7 +56,7 @@ class TestBIP32WalletCreation(unittest.TestCase):
 	def test_fail_generate_key(self):
 		k1 = generatePrivateMasterKey()
 		k2 = generatePrivateMasterKey()
-		self.assertNotEqual(k1, k2)
+		self.assertNotEqual(k1.key, k2.key)
 
 
 if __name__ == '__main__':
