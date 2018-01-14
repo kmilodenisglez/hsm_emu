@@ -14,6 +14,7 @@ from btcpy.setup import setup
 from btcpy.structs.hd import ExtendedKey
 from btcpy.structs.sig import P2pkSolver, P2pkScript, P2pkhSolver, P2pkhScript, Sighash, P2shSolver, P2shScript
 from btcpy.structs.script import ScriptSig
+from btcpy.structs.address import Address
 from btcpy.structs.transaction import Transaction, Sequence, TxOut, Locktime, TxIn, MutableTransaction, MutableTxIn
 import ecdsa
 from ecdsa.curves import SECP256k1
@@ -245,12 +246,11 @@ value = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
 
 
 def decipherKeyValue(path, key, value):
+	if not isinstance(key, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
+	if not isinstance(value, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    						
 	try:
-		if not isinstance(key, bytes):
-			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))    		
-		if not isinstance(value, bytes):
-			raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(value)))    						
-
 		private_key_derived = derive(masterkey, path)
 		byte_private_key = private_key_derived.key.serialize()
 
@@ -276,7 +276,7 @@ def decipherKeyValue(path, key, value):
 		fernet = Fernet(key_encode)
 		return fernet.decrypt(value)
 	except Exception as e:
-		raise e	
+		raise e
 
 """
 Create a key
@@ -291,11 +291,56 @@ def generatePrivateMasterKey():
     return k
 
 
-def raw_transaction(ins, outs):
-	unsigned = MutableTransaction(version=2,
+"""
+Create a TxIn
+
+example:
+tx = b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756	
+txout = 1
+
+txin(tx, txout)
+"""
+
+
+def txin(prev_hash, prev_index=0):
+	if not isinstance(prev_hash, str):
+		raise ValueError('Expected objects of type `str`, got {} instead'.format(type(prev_hash)))	
+	if not isinstance(prev_index, int):
+		raise ValueError('Expected objects of type `int`, got {} instead'.format(type(prev_index)))		
+	return TxIn(txid=prev_hash, txout=prev_index, script_sig=ScriptSig.empty(), sequence=Sequence.max())
+
+
+"""
+Create a TxOut
+
+example:
+address_to = n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP	
+amount = 3181747
+
+txout(address_to, amount)
+
+return this object:
+	TxOut(value=318174700000000, n=0, scriptPubKey='OP_DUP OP_HASH160 f85965bfd6f6a0a98a85020020db50539d610670 OP_EQUALVERIFY OP_CHECKSIG')
+"""
+
+
+def txout(address, amount, n=0):
+	if not isinstance(address, str):
+		raise ValueError('Expected objects of type `str`, got {} instead'.format(type(address)))
+	if not (isinstance(amount, int) or isinstance(amount, float)):
+		raise ValueError('Expected objects of type `int` or `float`, got {} instead'.format(type(amount)))
+	try:		
+		script_pubkey = P2pkhScript(Address.from_string(address))
+		return TxOut(value=int(amount*COIN), n=n, script_pubkey=script_pubkey)
+	except Exception as e:
+		raise e	
+
+
+def raw_transaction(ins, outs, version = 2):
+	unsigned = MutableTransaction(version=version,
 		ins=ins,
 		outs=outs,
-		locktime=Locktime(0))   
+		locktime=Locktime(0))
 	return unsigned.hexlify()
 
 
@@ -372,3 +417,6 @@ if __name__ == '__main__':
 	if(json_res['complete']):
 		tx_id = regtest.send_rpc_cmd(['sendrawtransaction', json_res['hex']], 0)    
 	"""
+
+	print(txin("n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP", 3181747))
+	print(txout("n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP", 3181747))
