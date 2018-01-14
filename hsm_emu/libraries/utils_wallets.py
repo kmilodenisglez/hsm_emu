@@ -11,7 +11,8 @@ from bitcoin.rpc import RawProxy, JSONRPCError, Proxy
 
 from regtest import Manager
 from btcpy.setup import setup
-from btcpy.structs.hd import ExtendedKey
+from btcpy.structs.crypto import PrivateKey
+from btcpy.structs.hd import ExtendedKey, ExtendedPrivateKey
 from btcpy.structs.sig import P2pkSolver, P2pkScript, P2pkhSolver, P2pkhScript, Sighash, P2shSolver, P2shScript
 from btcpy.structs.script import ScriptSig
 from btcpy.structs.address import Address
@@ -152,30 +153,30 @@ def verifyMessage(address, signature, message):
 
 
 """
-    Genera una seed aleatorio de 32 bits usando HKDF 
-    (HMAC-based Extract-and-Expand Key Derivation Function).
+	Genera una seed aleatorio de 32 bits usando HKDF 
+	(HMAC-based Extract-and-Expand Key Derivation Function).
 """
 
 
 def secret(key, salt, info):
-    if not isinstance(key, bytes):
-        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))
-    if not isinstance(salt, bytes):
-        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(salt)))
-    if not isinstance(info, bytes):
-        raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(info)))
-    try:
-        kdf = HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt,        
-            info=info,
-            backend=default_backend()
-        )
-        sc = kdf.derive(key)    
-        return sc
-    except Exception as e:
-        raise e
+	if not isinstance(key, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(key)))
+	if not isinstance(salt, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(salt)))
+	if not isinstance(info, bytes):
+		raise ValueError('Expected objects of type `bytes`, got {} instead'.format(type(info)))
+	try:
+		kdf = HKDF(
+			algorithm=hashes.SHA256(),
+			length=32,
+			salt=salt,        
+			info=info,
+			backend=default_backend()
+		)
+		sc = kdf.derive(key)    
+		return sc
+	except Exception as e:
+		raise e
 
 
 """
@@ -217,11 +218,11 @@ def cipherKeyValue(path, key, value):
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"
 		hkdf = HKDF(
-		     algorithm=hashes.SHA256(),
-		     length=32,
-		     salt=salt,
-		     info=info,
-		     backend=backend
+			 algorithm=hashes.SHA256(),
+			 length=32,
+			 salt=salt,
+			 info=info,
+			 backend=backend
 		 )
 
 		_key = hkdf.derive(key)
@@ -261,11 +262,11 @@ def decipherKeyValue(path, key, value):
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"
 		hkdf = HKDF(
-		     algorithm=hashes.SHA256(),
-		     length=32,
-		     salt=salt,
-		     info=info,
-		     backend=backend
+			 algorithm=hashes.SHA256(),
+			 length=32,
+			 salt=salt,
+			 info=info,
+			 backend=backend
 		 )
 
 		_key = hkdf.derive(key)
@@ -282,13 +283,18 @@ def decipherKeyValue(path, key, value):
 Create a key
 """
 
-def generatePrivateMasterKey():
-    key = os.urandom(16)
-    salt = os.urandom(16)
-    info = b"hkdf-bitcoin-regtest-example"  
-    sc = secret(key, salt, info)
-    k = ecdsa.SigningKey.from_string(sc, curve=SECP256k1)
-    return k
+def generatePrivateMasterKey():	
+	key = os.urandom(16)
+	salt = os.urandom(16)
+	derived_chaincode = os.urandom(32)
+	
+	info = b"hkdf-bitcoin-regtest-example"  
+	seed = secret(key, salt, info)
+	key = ecdsa.SigningKey.from_string(seed, curve=SECP256k1)
+	prvkey = PrivateKey(key.to_string())	
+	
+	masterprivkey = ExtendedPrivateKey.master(prvkey, derived_chaincode)
+	return masterprivkey
 
 
 """
@@ -299,6 +305,9 @@ tx = b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756
 txout = 1
 
 txin(tx, txout)
+
+return this object:
+	TxIn(txid=b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756, txout=0, script_sig=, sequence=4294967295, witness=None)
 """
 
 
@@ -306,8 +315,11 @@ def txin(prev_hash, prev_index=0):
 	if not isinstance(prev_hash, str):
 		raise ValueError('Expected objects of type `str`, got {} instead'.format(type(prev_hash)))	
 	if not isinstance(prev_index, int):
-		raise ValueError('Expected objects of type `int`, got {} instead'.format(type(prev_index)))		
-	return TxIn(txid=prev_hash, txout=prev_index, script_sig=ScriptSig.empty(), sequence=Sequence.max())
+		raise ValueError('Expected objects of type `int`, got {} instead'.format(type(prev_index)))
+	try:
+		return TxIn(txid=prev_hash, txout=prev_index, script_sig=ScriptSig.empty(), sequence=Sequence.max())
+	except Exception as e:
+		raise e		
 
 
 """
@@ -337,7 +349,15 @@ def txout(address, amount, n=0):
 
 
 def raw_transaction(ins, outs, version = 2):
-	unsigned = MutableTransaction(version=version,
+	if not isinstance(ins, list) and isinstance(ins, TxIn):
+		ins=[ins]
+	elif not isinstance(ins, list) and not isinstance(ins, TxIn):
+		raise ValueError('Expected objects of type `[TxIn]` or `TxIn`, got {} instead'.format(type(ins)))		
+	if not isinstance(outs, list) and isinstance(outs, TxOut):
+		outs=[outs]
+	elif not isinstance(outs, list) and not isinstance(outs, TxOut):
+		raise ValueError('Expected objects of type `[TxOut]` or `TxOut`, got {} instead'.format(type(outs)))
+	unsigned = Transaction(version=version,
 		ins=ins,
 		outs=outs,
 		locktime=Locktime(0))
@@ -417,6 +437,31 @@ if __name__ == '__main__':
 	if(json_res['complete']):
 		tx_id = regtest.send_rpc_cmd(['sendrawtransaction', json_res['hex']], 0)    
 	"""
+	"""
+	tin = txin("d97bc312048348148cc180dd99cb1befa30c226c2a4d1ef84974b1111b543fe6")
+	tout1 = txout("n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC", 10)
+	tout2 = txout("mqTEZZofeDSxRffkpqdVXKHaerTH4v9bPK", 39.9)
+	
 
-	print(txin("n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP", 3181747))
-	print(txout("n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP", 3181747))
+	raw_t = raw_transaction(tin, [tout1,tout2])
+	print(raw_t)
+	"""
+
+
+	
+
+	"""
+	#k = PrivateKey.unhexlify(b2x(key))
+	prvkey = PrivateKey(key)
+	
+
+	derived_chaincode = generatePrivateMasterKey().to_string()
+	print(derived_chaincode)
+	#exkey = ExtendedPrivateKey(k, derived_chaincode, 0, "fe6f590a", 0, hardened = True)
+	exkey = ExtendedPrivateKey.master(prvkey, generatePrivateMasterKey().to_string())
+	derive = exkey.derive("m/0'/0'/276'")
+	print(derive.encode(mainnet=actived_mainnet))
+
+	print(secret())
+	"""
+
