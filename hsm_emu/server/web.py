@@ -13,7 +13,8 @@ from libraries.authentication import (getChallengeHidden, getChallengeVisual,
 	checkPath, signAuth, verifyAuth)
 from libraries.utils_wallets import (customPathDerivation,  
 	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey, 
-	cipherKeyValue, decipherKeyValue, generatePrivateMasterKey)
+	cipherKeyValue, decipherKeyValue, generatePrivateMasterKey,
+	txin, txout, rawTransaction, COIN)
 
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -40,6 +41,7 @@ urls = (
 	"/bip32", "bip32View", 
 	"/derivation", "derivationView", 
 	"/generate", "generateKeyView",
+	"/composetx", "composeTxView",
 	)
 
 
@@ -288,6 +290,36 @@ class generateKeyView:
 				'masterkey_wif': masterkey_wif,
 				'masterkey_hex': masterkey_hex,
 			})
+
+
+class composeTxView:
+	def GET(self):
+		return render.composeTx("I still need to dynamically get \
+			an address from my wallet for change output, In this \
+			example, our input had 50 BTC.")
+
+	def POST(self):
+		values = web.input(txidPrev={}, addressTo={}, amount={})		
+		try:
+			amount = 50 * COIN
+			amount_return = (amount-int(values['amount']))-0.0002
+			tin = txin(values['txidPrev'])
+			tout1 = txout("n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC", amount_return)
+			tout2 = txout(values['addressTo'], int(values['amount']))
+			rawTx = rawTransaction(tin, [tout1,tout2])
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				})            
+		return json.dumps(
+			{
+				'error': False,
+				'message': '', 
+				'rawTx':rawTx.hexlify(),
+				'txJson':str(rawTx.to_json()),
+			})		
 
 if __name__ == '__main__':
 	app.run()

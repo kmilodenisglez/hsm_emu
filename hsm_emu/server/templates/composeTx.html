@@ -1,0 +1,63 @@
+$def with (text)
+$var jsfiles: 
+$var cssfiles:
+<cite>$text</cite>
+  <table class="signtx">
+    <tr>
+      <td colspan="4" style="font-weight:bold">Sign</td>
+    </tr>
+    <tr>
+      <td>Previous txid:</td>
+      <td><input id="prevTxid" value="d97bc312048348148cc180dd99cb1befa30c226c2a4d1ef84974b1111b543fe6"></td>
+    </tr>
+    <tr>
+      <td>Address:</td>
+      <td><input id="address" value="n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC" size="64"></td>
+      <td>Satoshis:</td>
+      <td><input id="coin" type="number" value="20000" max="5000000000" style="width: 150px;"></td>      
+      <td></td>
+      <td><button class="btn btn-primary btn-sm" onclick="composeTx()">Compose</button></td>
+    </tr>
+  </table>
+
+  <hr>
+  <code id="responseRawTx"></code>
+  <hr>
+  <code id="response"></code>
+
+<script>
+  jQuery(document).ready(function() {
+      highlight("#composetx");
+  });    
+  function composeTx() { 
+    var prevTxid = document.getElementById("prevTxid").value;    
+    var address = document.getElementById("address").value;
+    var coin = document.getElementById("coin").value;
+
+    var response = document.getElementById("response");
+    var responseRawTx = document.getElementById("responseRawTx");
+
+     jQuery.ajax({
+              type: "POST",
+              data: {txidPrev : prevTxid, addressTo: address, amount: coin},
+              success: function(data) {
+                var result = jQuery.parseJSON( data );
+                  if(result.error == true)
+                  {
+                    console.log("Server Error: ", result.message);
+                    alert("Server Error: "+ result.message);
+                  }
+                  else
+                  {
+                    console.log("Success! Compose.");                    
+                    console.log("==============Compose TX==============");
+                    console.log("RAW TRANSACTION: ", result.rawTx);
+                    response.textContent = "JSON Transaction: "+result.txJson;
+                    responseRawTx.textContent = "Raw Transaction: "+result.rawTx;
+                    alert("Success! Compose. Check the browser console...")  
+                  }                
+              },
+        });
+      }
+</script>
+

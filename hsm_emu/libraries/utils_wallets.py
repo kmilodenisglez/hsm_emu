@@ -153,8 +153,8 @@ def verifyMessage(address, signature, message):
 
 
 """
-	Genera una seed aleatorio de 32 bits usando HKDF 
-	(HMAC-based Extract-and-Expand Key Derivation Function).
+	Generates a 32-bit random seed using 
+	HKDF (HMAC-based Extract-and-Expand Key Derivation Function).
 """
 
 
@@ -213,20 +213,7 @@ def cipherKeyValue(path, key, value):
 
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"
-		"""
-		backend = default_backend()
-		salt = byte_private_key
-		info = b"hkdf-bitcoin-regtest-example"
-		hkdf = HKDF(
-			 algorithm=hashes.SHA256(),
-			 length=32,
-			 salt=salt,
-			 info=info,
-			 backend=backend
-		 )
 
-		_key = hkdf.derive(key)
-		"""
 		sc = secret(key, salt, info)
 		key_encode = base64.urlsafe_b64encode(sc)	
 			
@@ -237,12 +224,12 @@ def cipherKeyValue(path, key, value):
 
 
 """
-Decipher value (must be hexadecimal) using the private key derived by given 
-BIP32 path and the given key.
+	Decipher value (must be hexadecimal) using the private key derived by given 
+	BIP32 path and the given key.
 
-path = "m/0'/0'/276'"
-key = ''
-value = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
+	path = "m/0'/0'/276'"
+	key = ''
+	value = '1c0ffeec0ffeec0ffeec0ffeec0ffee1'
 """
 
 
@@ -257,20 +244,7 @@ def decipherKeyValue(path, key, value):
 
 		salt = byte_private_key
 		info = b"hkdf-bitcoin-regtest-example"		
-		"""
-		backend = default_backend()
-		salt = byte_private_key
-		info = b"hkdf-bitcoin-regtest-example"
-		hkdf = HKDF(
-			 algorithm=hashes.SHA256(),
-			 length=32,
-			 salt=salt,
-			 info=info,
-			 backend=backend
-		 )
 
-		_key = hkdf.derive(key)
-		"""
 		sc = secret(key, salt, info)
 		key_encode = base64.urlsafe_b64encode(sc)	
 			
@@ -280,7 +254,7 @@ def decipherKeyValue(path, key, value):
 		raise e
 
 """
-Create a key
+	Create a key
 """
 
 def generatePrivateMasterKey():	
@@ -298,16 +272,16 @@ def generatePrivateMasterKey():
 
 
 """
-Create a TxIn
+	Create a TxIn
 
-example:
-tx = b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756	
-txout = 1
+	example:
+	tx = b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756	
+	txout = 1
 
-txin(tx, txout)
+	txin(tx, txout)
 
-return this object:
-	TxIn(txid=b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756, txout=0, script_sig=, sequence=4294967295, witness=None)
+	return this object:
+		TxIn(txid=b4e0d22d4cfa07c08f5e7777e2aaefac3f80e8306dff8373cfcaa009039a8756, txout=0, script_sig=, sequence=4294967295, witness=None)
 """
 
 
@@ -323,16 +297,16 @@ def txin(prev_hash, prev_index=0):
 
 
 """
-Create a TxOut
+	Create a TxOut
 
-example:
-address_to = n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP	
-amount = 3181747
+	example:
+	address_to = n4A6y59PPHJns7bbKcHAviTybP9eWUG1BP	
+	amount = 3181747
 
-txout(address_to, amount)
+	txout(address_to, amount)
 
-return this object:
-	TxOut(value=318174700000000, n=0, scriptPubKey='OP_DUP OP_HASH160 f85965bfd6f6a0a98a85020020db50539d610670 OP_EQUALVERIFY OP_CHECKSIG')
+	return this object:
+		TxOut(value=318174700000000, n=0, scriptPubKey='OP_DUP OP_HASH160 f85965bfd6f6a0a98a85020020db50539d610670 OP_EQUALVERIFY OP_CHECKSIG')
 """
 
 
@@ -343,12 +317,12 @@ def txout(address, amount, n=0):
 		raise ValueError('Expected objects of type `int` or `float`, got {} instead'.format(type(amount)))
 	try:		
 		script_pubkey = P2pkhScript(Address.from_string(address))
-		return TxOut(value=int(amount*COIN), n=n, script_pubkey=script_pubkey)
+		return TxOut(value=int(amount), n=n, script_pubkey=script_pubkey)
 	except Exception as e:
 		raise e	
 
 
-def raw_transaction(ins, outs, version = 2):
+def rawTransaction(ins, outs, version = 2):
 	if not isinstance(ins, list) and isinstance(ins, TxIn):
 		ins=[ins]
 	elif not isinstance(ins, list) and not isinstance(ins, TxIn):
@@ -357,11 +331,11 @@ def raw_transaction(ins, outs, version = 2):
 		outs=[outs]
 	elif not isinstance(outs, list) and not isinstance(outs, TxOut):
 		raise ValueError('Expected objects of type `[TxOut]` or `TxOut`, got {} instead'.format(type(outs)))
-	unsigned = Transaction(version=version,
+	tx = Transaction(version=version,
 		ins=ins,
 		outs=outs,
-		locktime=Locktime(0))
-	return unsigned.hexlify()
+		locktime=Locktime(0))	
+	return tx#.hexlify()
 
 
 if __name__ == '__main__':
@@ -426,7 +400,7 @@ if __name__ == '__main__':
 	outs=[TxOut(value=int(amount_send_to_1*COIN), n=0, script_pubkey=script_pubkey_me_1),
 		TxOut(value=int(amount_send_to_2*COIN), n=0, script_pubkey=script_pubkey_me_2)];
 
-	raw_t = raw_transaction(ins, outs)
+	raw_t = rawTransaction(ins, outs)
 
 
 	regtest = Manager(user='admin1', password='123', base_port=19000, base_rpcport=19001)
@@ -443,7 +417,7 @@ if __name__ == '__main__':
 	tout2 = txout("mqTEZZofeDSxRffkpqdVXKHaerTH4v9bPK", 39.9)
 	
 
-	raw_t = raw_transaction(tin, [tout1,tout2])
+	raw_t = rawTransaction(tin, [tout1,tout2])
 	print(raw_t)
 	"""
 
@@ -464,4 +438,5 @@ if __name__ == '__main__':
 
 	print(secret())
 	"""
+
 

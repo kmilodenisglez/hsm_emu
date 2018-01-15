@@ -5,7 +5,7 @@ if sys.version_info.major < 3:
 	sys.exit(1)
 	
 import unittest
-from context import (txin, txout, raw_transaction)
+from context import (txin, txout, rawTransaction, COIN)
 
 prev_tx_id = "d97bc312048348148cc180dd99cb1befa30c226c2a4d1ef84974b1111b543fe6"
 address_me = "n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC"
@@ -19,10 +19,10 @@ raw_tx = "0200000001e63f541b11b17449f81e4d2a6c220ca3ef1bcb99dd80c18c144883\
 class TestTransaction(unittest.TestCase):
 	def test_raw_transaction_success(self):
 		tin = txin(prev_tx_id)
-		tout1 = txout(address_me, 10)
-		tout2 = txout(address_to, 39.9)
-		raw_t = raw_transaction(tin, [tout1,tout2])		
-		self.assertEqual(raw_tx, raw_t)
+		tout1 = txout(address_me, 10*COIN)
+		tout2 = txout(address_to, 39.9*COIN)
+		raw_t = rawTransaction(tin, [tout1,tout2])		
+		self.assertEqual(raw_tx, raw_t.hexlify())
 		
 
 
