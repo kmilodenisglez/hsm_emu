@@ -33,6 +33,7 @@ all other dependencies are included in [`libraries`]:
 - **Makefile**: [`Makefile`](Makefile)(Create your own private bitcoin regtest already preconfigured with 2 nodes, the 2nd node connected to the 1st; see more at #bitcoin-regtest-box).
 - **libraries/authentication.py**: [`libraries/authentication.py`](libraries/authentication.py)(Challenge-response authentication [SLIP-0013: Authentication using deterministic hierarchy](https://github.com/satoshilabs/slips/blob/master/slip-0013.md).)
 - **libraries/utils_wallets.py**: [`libraries/utils_wallets.py`](libraries/utils_wallets.py)(Several functionalities implemented [bip32KeyInfoFromKey, getXPubKey, derive, customPathDerivation, signMessage, verifyMessage, secret, cipherKeyValue, decipherKeyValue, generatePrivateMasterKey, raw_transaction, ...])
+- **libraries/utils_transactions.py**: [`libraries/utils_transactions.py`](libraries/utils_wallets.py)(Several functionalities implemented [createSignPushTransaction, validAmount])
 - **libraries/request_payment.py**:[`libraries/request_payment.py`](libraries/request_payment.py)
 
 
@@ -89,9 +90,12 @@ for the JSON-RPC server.
 
 
 ```
+$ cd hsm_emu/
 $ make start
+$ make generate-start
 ```
 
+We start bitcore-core daemon in regtest mode and JSON-RPC in http://admin1:123@localhost:19001, with user (admin1) and password (123).
 
 ## TODO
 Since this example is still a work in progress, the following roadmap lists the improvements that must be made:

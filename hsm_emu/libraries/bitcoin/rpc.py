@@ -178,11 +178,12 @@ class BaseProxy(object):
                         raise ValueError('Cookie file unusable (%s) and rpcpassword not specified in the configuration file: %r' % (err, btc_conf_file))
 
         self.__service_url = service_url
+        #print("--> ", self.__service_url)
         self.__url = urlparse.urlparse(service_url)
 
         if self.__url.scheme not in ('http',):
             raise ValueError('Unsupported URL scheme %r' % self.__url.scheme)
-
+        #print("--> ", self.__url)
         if self.__url.port is None:
             port = httplib.HTTP_PORT
         else:
@@ -207,7 +208,7 @@ class BaseProxy(object):
                                'method': service_name,
                                'params': args,
                                'id': self.__id_count})
-
+        #print(postdata)
         headers = {
             #'Host': '192.168.154.128:18400',
             'Host': self.__url.hostname,
@@ -228,6 +229,36 @@ class BaseProxy(object):
                 'code': -343, 'message': 'missing JSON-RPC result'})
         else:
             return response['result']
+
+    def _call_all_response(self, service_name, *args):
+        self.__id_count += 1
+
+        postdata = json.dumps({'version': '1.1',
+                               'method': service_name,
+                               'params': args,
+                               'id': self.__id_count})
+        #print(postdata)
+        headers = {
+            #'Host': '192.168.154.128:18400',
+            'Host': self.__url.hostname,
+            'User-Agent': DEFAULT_USER_AGENT,
+            #'Authorization': 'Basic dXNlcjpwd2Q',
+            'Content-type': 'application/json',
+        }
+
+        if self.__auth_header is not None:
+            headers['Authorization'] = self.__auth_header
+        self.__conn.request('POST', self.__url.path, postdata, headers)
+
+        response = self._get_response()
+        if response['error'] is not None:
+            raise JSONRPCError(response['error'])
+        elif 'result' not in response:
+            raise JSONRPCError({
+                'code': -343, 'message': 'missing JSON-RPC result'})
+        else:
+            return response#['result']
+
 
     def _batch(self, rpc_call_list):
         postdata = json.dumps(list(rpc_call_list))

@@ -6,7 +6,7 @@ B2_FLAGS=
 B1=-datadir=nodes/node_0 $(B1_FLAGS)
 B2=-datadir=nodes/node_1 $(B2_FLAGS)
 BLOCKS=1
-GENBLOCKS=101
+GENBLOCKS=103 # para generar 150 BTC en la cuenta
 ADDRESS=
 AMOUNT=
 ACCOUNT=

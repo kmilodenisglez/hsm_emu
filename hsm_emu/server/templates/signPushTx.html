@@ -1,0 +1,78 @@
+$def with (text, enableField)
+$var jsfiles: 
+$var cssfiles:
+<cite>$:text</cite>
+<br><br>
+  <table class="signtx">
+    <tr>
+      <td colspan="4" style="font-weight:bold">Sign and Push Transaction</td>
+    </tr>
+    <tr>
+      <td>Address To:</td>
+      <td><input id="addressTo" value="n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC" size="64" $:enableField></td>
+      <td>Satoshis:</td>
+      <td><input id="coin" type="number" value="20000" max="10000000000" style="width: 150px;" $:enableField></td>      
+      <td></td>
+      <td><button class="btn btn-primary btn-sm" onclick="signPushTx()" $:enableField>Sign and Push</button></td>
+    </tr>
+  </table>
+
+<hr>
+<code id="response"></code>
+<hr>
+<code id="textAmountReceived"></code>
+<hr>
+<code id="responseRawSignTx"></code>
+
+<script>
+  jQuery(document).ready(function() {
+      highlight("#signpushtx");
+      cleanFields();
+      defaultValues();
+  });    
+  function signPushTx() {
+    cleanFields();
+    var addressTo = document.getElementById("addressTo").value;
+    var satoshis = document.getElementById("coin").value;
+
+    var response = document.getElementById("response");
+    var responseRawSignTx = document.getElementById("responseRawSignTx");
+    var textAmountReceived = document.getElementById("textAmountReceived");    
+
+     jQuery.ajax({
+              type: "POST",
+              data: {addressTo: addressTo, amount: satoshis},
+              success: function(data) {
+                var result = jQuery.parseJSON( data );
+                  if(result.error == true)
+                  {                    
+                    console.log("Server Error: ", result.message);
+                    alert("Server Error: "+ result.message);
+                  }
+                  else
+                  {
+                    console.log("Success! Sign and Push Transaction.");                    
+                    console.log("==============Sign and Push Transaction==============");
+                    console.log("RAW TRANSACTION: ", result.rawSignTx);
+                    response.textContent = "TxId Transaction: "+result.txid;
+                    textAmountReceived.textContent = "Amount Received: "+result.amountReceived;
+                    responseRawSignTx.textContent = "Raw Transaction: "+result.rawSignTx;
+                    alert("Success! Sign and Push Transaction. Check the browser console...")  
+                  }                
+              },
+        });
+  }
+
+
+  function cleanFields() {      
+      document.getElementById("response").textContent = '';
+      document.getElementById("responseRawSignTx").textContent = '';
+      document.getElementById("textAmountReceived").textContent = '';
+  }      
+
+  function defaultValues() {
+      document.getElementById("addressTo").value = 'n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC';
+      document.getElementById("coin").value = '20000';    
+  }
+</script>
+

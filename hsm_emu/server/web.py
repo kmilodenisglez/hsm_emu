@@ -16,13 +16,19 @@ from libraries.utils_wallets import (customPathDerivation,
 	cipherKeyValue, decipherKeyValue, generatePrivateMasterKey,
 	txin, txout, rawTransaction, COIN)
 
+from libraries.utils_transactions import (validAmount, createSignPushTransaction,
+	Transactions, RegtestDaemonService)
+
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
 os.chdir(web_root)
 
 #setup('regtest')
-#masterkey = 'tprv8ZgxMBicQKsPf4wpV8MBx9Ux4T7Cvnojkw6WMsKF6WQSTb76AinSxfjAC73f8GXZgfTczrE2U1sh2L8HJeyhbaBbjCmkdsTAAueN9HQsyvF'
 
+rpcuser = 'admin1'
+rpcpassword = '123'
+host = 'localhost'
+rpcport = '19001'
 
 def make_text(string):
 	return string
@@ -41,7 +47,8 @@ urls = (
 	"/bip32", "bip32View", 
 	"/derivation", "derivationView", 
 	"/generate", "generateKeyView",
-	"/composetx", "composeTxView",
+	"/composeTx", "composeTxView",
+	"/signpushTx", "signPushTransactionView",
 	)
 
 
@@ -320,6 +327,47 @@ class composeTxView:
 				'rawTx':rawTx.hexlify(),
 				'txJson':str(rawTx.to_json()),
 			})		
+
+
+class signPushTransactionView:
+	def GET(self):
+		transactions = Transactions(username=rpcuser, password=rpcpassword, host=host, port=rpcport)	
+		rpcconn = RegtestDaemonService(username=rpcuser, password=rpcpassword, host=host, port=rpcport)		
+
+		msg = ""
+		disable = ' disabled'
+		try:
+			validAmount(transactions, rpcconn)			
+		except:
+			msg = "Make sure <b>bitcoin-core daemon server</b> is running and you are connecting to \
+			the correct RPC port, follow the instructions in <a href='https://github.com/nektra/learning-/tree/hsm_emu/hsm_emu/README.md#bitcoin-regtest-box'>README</a>."				
+			return render.signPushTx(msg, disable)
+		return render.signPushTx(msg, '')
+
+	def POST(self):
+		transactions = Transactions(username=rpcuser, password=rpcpassword, host=host, port=rpcport)	
+		rpcconn = RegtestDaemonService(username=rpcuser, password=rpcpassword, host=host, port=rpcport)		
+
+		values = web.input(addressTo={}, amount={})		
+
+		try:
+			response = createSignPushTransaction(transactions, rpcconn, values['addressTo'], int(values['amount']))
+			print(response)
+		except Exception as e:
+			return json.dumps(
+				{
+					'error': True,
+					'message': str(e),
+				})            
+		return json.dumps(
+			{
+				'error': False,
+				'message': '', 
+				'rawSignTx':response[1],
+				'txid':response[0],
+				'amountReceived':str(response[2]),
+			})	
+
 
 if __name__ == '__main__':
 	app.run()
