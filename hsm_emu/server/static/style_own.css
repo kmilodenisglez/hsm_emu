@@ -15,6 +15,11 @@ body {
   width: 600px;
 }   
 
+.has-error {
+  color:red;
+  background-color: blanchedalmond;
+}
+
 table {
   display: inline-block;
   width: 49%;

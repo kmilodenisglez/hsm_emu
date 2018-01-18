@@ -301,7 +301,18 @@ class generateKeyView:
 
 class composeTxView:
 	def GET(self):
-		return render.composeTx("")
+		transactions = Transactions(username=rpcuser, password=rpcpassword, host=host, port=rpcport)	
+		rpcconn = RegtestDaemonService(username=rpcuser, password=rpcpassword, host=host, port=rpcport)		
+
+		msg = ""
+		disable = ' disabled'
+		try:
+			validAmount(transactions, rpcconn)			
+		except:
+			msg = "Make sure <b>bitcoin-core daemon server</b> is running and you are connecting to \
+			the correct RPC port, follow the instructions in <a href='https://github.com/nektra/learning-/tree/hsm_emu/hsm_emu/README.md#bitcoin-regtest-box'>README</a>."				
+			return render.composeTx(msg, disable)
+		return render.composeTx(msg, '')
 
 	def POST(self):
 		transactions = Transactions(username=rpcuser, password=rpcpassword, host=host, port=rpcport)	
