@@ -14,10 +14,10 @@ from libraries.authentication import (getChallengeHidden, getChallengeVisual,
 from libraries.utils_wallets import (customPathDerivation,  
 	getXPubKey, signMessage, verifyMessage, bip32KeyInfoFromKey, 
 	cipherKeyValue, decipherKeyValue, generatePrivateMasterKey,
-	txin, txout, rawTransaction, COIN)
+	txin, txout, COIN)
 
 from libraries.utils_transactions import (validAmount, createSignPushTransaction,
-	Transactions, RegtestDaemonService)
+	Transactions, RegtestDaemonService, composeTx)
 
 # to avoid any path issues, "cd" to the web root.
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -301,19 +301,15 @@ class generateKeyView:
 
 class composeTxView:
 	def GET(self):
-		return render.composeTx("I still need to dynamically get \
-			an address from my wallet for change output, In this \
-			example, our input had 50 BTC.")
+		return render.composeTx("")
 
 	def POST(self):
+		transactions = Transactions(username=rpcuser, password=rpcpassword, host=host, port=rpcport)	
+		rpcconn = RegtestDaemonService(username=rpcuser, password=rpcpassword, host=host, port=rpcport)		
+
 		values = web.input(txidPrev={}, addressTo={}, amount={})		
 		try:
-			amount = 50 * COIN
-			amount_return = (amount-int(values['amount']))-0.0002
-			tin = txin(values['txidPrev'])
-			tout1 = txout("n4P8d1TkqvWmNJrcSWKSXoNUzjrceU1wsC", amount_return)
-			tout2 = txout(values['addressTo'], int(values['amount']))
-			rawTx = rawTransaction(tin, [tout1,tout2])
+			fromAddress, rawTx, deserializeTx = composeTx(transactions, rpcconn, values['addressTo'], int(values['amount']))
 		except Exception as e:
 			return json.dumps(
 				{
@@ -324,8 +320,8 @@ class composeTxView:
 			{
 				'error': False,
 				'message': '', 
-				'rawTx':rawTx.hexlify(),
-				'txJson':str(rawTx.to_json()),
+				'rawTx':rawTx,
+				'txJson':str(deserializeTx.to_json()),
 			})		
 
 
@@ -362,10 +358,11 @@ class signPushTransactionView:
 		return json.dumps(
 			{
 				'error': False,
-				'message': '', 
-				'rawSignTx':response[1],
+				'message': '', 				
 				'txid':response[0],
-				'amountReceived':str(response[2]),
+				'rawSignTx':response[1],
+				'txJson':str(response[2].to_json()),
+				'amountReceived':str(response[3]),
 			})	
 
 
