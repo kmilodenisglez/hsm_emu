@@ -8,6 +8,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
 from btcpy.setup import setup
+from btcpy.structs.transaction import Transaction
 from bitcoin import SelectParams
 from bitcoin.core import COIN
 from bitcoin.wallet import CBitcoinAddress
@@ -31,43 +32,65 @@ try:
 except Exception as e:
 	raise e
 
+"""
+	Requests a payment from a address wallet to a given recipients
+	return (fromAddress, rawTx)
+"""
 
-def createSignPushTransaction(transactions, rpcconn, to_address, amount):
+
+def composeTx(transactions, rpcconn, addressTo, amount):		
 	if not isinstance(transactions, Transactions):
 		raise ValueError('Expected objects of type `Transactions`, got {} instead'.format(type(transactions)))
 	if not isinstance(rpcconn, RegtestDaemonService):
-		raise ValueError('Expected objects of type `RegtestDaemonService`, got {} instead'.format(type(rpcconn)))
-	try:		
-		CBitcoinAddress(to_address)
+		raise ValueError('Expected objects of type `RegtestDaemonService`, got {} instead'.format(type(rpcconn)))	
+	if isinstance(amount, float):
+		amount = int(amount)
+	if not isinstance(amount, int):
+		raise ValueError('Expected objects of type `int`, got {} instead'.format(type(amount)))		
+	try:
+		CBitcoinAddress(addressTo)
 	except Base58ChecksumError:
-		raise ValueError("address invalid")
+		raise ValueError("address recipient invalid")
 
 	try:
-		transactions.import_address(to_address)
+		transactions.import_address(addressTo)
 	except OSError as e:
 		raise e
 	except:
 		pass
 
 	try:
-		from_address = rpcconn.getnewaddress()
-		privKeyWIF = rpcconn.dumpprivkey(from_address)
+		addressFrom = rpcconn.getnewaddress()
 
-		rpcconn.sendtoaddress(from_address, (amount/COIN)+1)
+		rpcconn.sendtoaddress(addressFrom, (amount/COIN)+1)
 		rpcconn.generate(1)
 
-		raw_tx = transactions.create(
-		    from_address,
-		    (to_address, amount),
+		rawTx = transactions.create(
+		    addressFrom,
+		    (addressTo, amount),
 		    min_confirmations=1,
 		)
-		signed_tx = transactions.sign(raw_tx, privKeyWIF)
-		pushed_tx = transactions.push(signed_tx)
-		amountReceived = rpcconn.getreceivedbyaddress(to_address)
+		deserializeTx = Transaction.unhexlify(rawTx)
 
-		return (pushed_tx, signed_tx, amountReceived)
+		return (addressFrom, rawTx, deserializeTx)
 	except Exception as e:
 		raise e
+
+
+def createSignPushTransaction(transactions, rpcconn, addressTo, amount):
+	try:
+		addressFrom, rawTx, deserializeTx = composeTx(transactions, rpcconn, addressTo, amount)
+
+		privKeyWIF = rpcconn.dumpprivkey(addressFrom)
+
+		signedTx = transactions.sign(rawTx, privKeyWIF)
+		hashPushedTx = transactions.push(signedTx)
+		amountReceived = rpcconn.getreceivedbyaddress(addressTo)
+
+		return (hashPushedTx, signedTx, deserializeTx, amountReceived)
+	except Exception as e:
+		raise e
+
 
 def validAmount(transactions, rpcconn):
 	try:
@@ -88,8 +111,11 @@ if __name__ == '__main__':
 	rpcconn = RegtestDaemonService(username=rpcuser, password=rpcpassword, host=host, port=rpcport)
 
 
-	result = createSignPushTransaction(transactions, rpcconn, "mgihCu3YkNQwyTpxbtpyX1Mfm24P6dcfig", 12*COIN)
-	print(result)
+	#result = createSignPushTransaction(transactions, rpcconn, "mgihCu3YkNQwyTpxbtpyX1Mfm24P6dcfig", 12*COIN)
+	#result = composeTx(transactions, rpcconn, "mgihCu3YkNQwyTpxbtpyX1Mfm24P6dcfig", 9.7*COIN)
+	#print(result)
+
+
 
 
 
