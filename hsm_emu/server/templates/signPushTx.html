@@ -23,6 +23,9 @@ $var cssfiles:
 <code id="textAmountReceived"></code>
 <hr>
 <code id="responseRawSignTx"></code>
+<hr>
+<hr>
+<code id="responsejsonTx"></code>
 
 <script>
   jQuery(document).ready(function() {
@@ -38,6 +41,7 @@ $var cssfiles:
     var response = document.getElementById("response");
     var responseRawSignTx = document.getElementById("responseRawSignTx");
     var textAmountReceived = document.getElementById("textAmountReceived");    
+    var jsonTx = document.getElementById("responsejsonTx");
 
      jQuery.ajax({
               type: "POST",
@@ -57,6 +61,7 @@ $var cssfiles:
                     response.textContent = "TxId Transaction: "+result.txid;
                     textAmountReceived.textContent = "Amount Received: "+result.amountReceived;
                     responseRawSignTx.textContent = "Raw Transaction: "+result.rawSignTx;
+                    jsonTx.textContent = "JSON Transaction: "+result.txJson;                    
                     alert("Success! Sign and Push Transaction. Check the browser console...")  
                   }                
               },
@@ -68,6 +73,7 @@ $var cssfiles:
       document.getElementById("response").textContent = '';
       document.getElementById("responseRawSignTx").textContent = '';
       document.getElementById("textAmountReceived").textContent = '';
+      document.getElementById("responsejsonTx").textContent = '';
   }      
 
   function defaultValues() {
